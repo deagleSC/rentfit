@@ -1,0 +1,4 @@
+{
+  "extends": "@rentfit/config/tsconfig/library.json",
+  "include": ["src"]
+}

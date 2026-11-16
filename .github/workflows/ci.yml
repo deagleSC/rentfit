@@ -1,0 +1,71 @@
+# Tests on every push and pull request. Database tests run against production inside rolled-back
+# transactions and need TEST_ADMIN_DATABASE_URL; it is deliberately not a CI secret, so CI skips them
+# and runs everything else. Run the full suite locally before merging (`pnpm --filter @rentfit/api test`).
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  api:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv sync --frozen
+      - name: Lint
+        run: uv run ruff check .
+      - name: Types
+        run: uv run mypy app
+      - name: Tests (database tests skipped)
+        run: uv run pytest -q -rs
+      - name: OpenAPI contract is up to date
+        run: |
+          uv run python -m app.export_openapi /tmp/openapi.json
+          diff -u openapi.json /tmp/openapi.json
+      - name: requirements.txt matches uv.lock
+        run: |
+          uv export -q --no-dev --no-hashes -o /tmp/requirements.txt
+          diff -u <(grep -v '^#' requirements.txt) <(grep -v '^#' /tmp/requirements.txt)
+
+  web:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv sync --frozen
+        working-directory: apps/api
+      - name: API client types
+        run: pnpm --filter @rentfit/api-client gen:api
+      - name: Types
+        run: pnpm typecheck
+      - name: Lint
+        run: pnpm lint
+      - name: Unit tests
+        run: pnpm turbo run test --filter=!@rentfit/api
+      - name: Build apps
+        run: pnpm turbo run build --filter=@rentfit/landlord --filter=@rentfit/tenant
