@@ -12,6 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from app.api.routers import me, reference
+from app.api.routers.landlord import listings as landlord_listings
 from app.core import monitoring
 from app.core.config import get_settings
 from app.core.db import close_pool
@@ -58,6 +59,7 @@ def create_app() -> FastAPI:
 
     app.include_router(me.router)
     app.include_router(reference.router)
+    app.include_router(landlord_listings.router)
 
     # Inngest calls this endpoint to run function steps; it verifies request signatures in production.
     # Without a signing key in production, skip the endpoint rather than take the API down.

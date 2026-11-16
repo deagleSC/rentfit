@@ -86,6 +86,16 @@ class RollbackDb:
         await self.conn.execute(f"set local role {role}")
         await self.conn.execute("select set_config('app.claims', %s, true)", (json.dumps(claims),))
 
+    async def fails(self, query: str, params: Any = None, error: type[Exception] = psycopg.Error) -> None:
+        """Assert the statement fails, inside a savepoint so the test transaction stays usable."""
+        await self.conn.execute("savepoint expect_fail")
+        try:
+            await self.conn.execute(query, params)
+        except error:
+            await self.conn.execute("rollback to savepoint expect_fail")
+            return
+        raise AssertionError(f"expected {error.__name__}: {query}")
+
     async def fetchall(self, query: str, params: Any = None) -> list[DictRow]:
         cur = await self.conn.execute(query, params)
         return await cur.fetchall()
