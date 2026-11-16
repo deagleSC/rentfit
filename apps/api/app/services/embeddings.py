@@ -8,10 +8,11 @@
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import math
 import re
-from typing import Protocol
+from typing import Any, Protocol
 
 import httpx
 
@@ -19,6 +20,7 @@ from app.core.config import get_settings
 
 DIM = 384
 BATCH = 32
+RETRIES = 4
 _WORD = re.compile(r"[a-z0-9]+")
 
 
@@ -59,14 +61,27 @@ class EdgeEmbedder:
         async with httpx.AsyncClient(timeout=self.timeout) as client:
             for i in range(0, len(texts), BATCH):
                 batch = texts[i:i + BATCH]
-                res = await client.post(self.url, json={"inputs": batch}, headers={"x-embed-key": self.key})
-                if res.status_code != 200:
-                    raise EmbedError(f"embed function returned {res.status_code}")
-                vecs = res.json().get("embeddings")
+                vecs = (await self._post(client, batch)).get("embeddings")
                 if not isinstance(vecs, list) or len(vecs) != len(batch) or any(len(v) != DIM for v in vecs):
                     raise EmbedError("embed function returned an unexpected shape")
                 out += vecs
         return out
+
+    async def _post(self, client: httpx.AsyncClient, batch: list[str]) -> dict[str, Any]:
+        """Edge Functions return the odd 5xx (cold start, 520): retry those and network errors."""
+        for attempt in range(RETRIES):
+            try:
+                res = await client.post(self.url, json={"inputs": batch}, headers={"x-embed-key": self.key})
+            except httpx.TransportError as exc:
+                if attempt == RETRIES - 1:
+                    raise EmbedError(f"embed function unreachable: {exc}") from exc
+            else:
+                if res.status_code == 200:
+                    return dict(res.json())
+                if res.status_code < 500 or attempt == RETRIES - 1:
+                    raise EmbedError(f"embed function returned {res.status_code}")
+            await asyncio.sleep(2**attempt)
+        raise EmbedError("unreachable")
 
 
 def get_embedder() -> Embedder:

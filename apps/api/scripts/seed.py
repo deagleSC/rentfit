@@ -1,7 +1,7 @@
 """Seed published listings (backend plan §14.2). No model calls.
 
-    uv run python -m scripts.seed                     # 50 listings, committed
-    uv run python -m scripts.seed --count 600 --dry-run   # build + verify each, then roll back
+    uv run python -m scripts.seed                     # 100 listings, committed
+    uv run python -m scripts.seed --count 20 --dry-run    # build + verify each, then roll back
 
 Each listing is generated in code (fields around the locality's median rent, a pin inside the
 locality, a description from varied templates, some Hinglish), then written through the same
@@ -296,7 +296,7 @@ def _dotenv(key: str) -> str:
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("--count", type=int, default=50)
+    ap.add_argument("--count", type=int, default=100)
     ap.add_argument("--seed", type=int, default=7)
     ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
