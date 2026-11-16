@@ -41,6 +41,7 @@ os.environ["JOB_DISPATCHER"] = "inline"
 os.environ["LANGFUSE_PUBLIC_KEY"] = ""
 os.environ["LANGFUSE_SECRET_KEY"] = ""
 os.environ["SENTRY_DSN"] = ""
+os.environ["SUPABASE_SERVICE_KEY"] = ""  # tests use the in-memory photo store
 
 def _from_dotenv(key: str) -> str:
     env = Path(__file__).resolve().parents[1] / ".env"
@@ -85,6 +86,16 @@ class RollbackDb:
     async def as_role(self, claims: dict[str, Any], role: str = "rentfit_api") -> None:
         await self.conn.execute(f"set local role {role}")
         await self.conn.execute("select set_config('app.claims', %s, true)", (json.dumps(claims),))
+
+    async def fails(self, query: str, params: Any = None, error: type[Exception] = psycopg.Error) -> None:
+        """Assert the statement fails, inside a savepoint so the test transaction stays usable."""
+        await self.conn.execute("savepoint expect_fail")
+        try:
+            await self.conn.execute(query, params)
+        except error:
+            await self.conn.execute("rollback to savepoint expect_fail")
+            return
+        raise AssertionError(f"expected {error.__name__}: {query}")
 
     async def fetchall(self, query: str, params: Any = None) -> list[DictRow]:
         cur = await self.conn.execute(query, params)
