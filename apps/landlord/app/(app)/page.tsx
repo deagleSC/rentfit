@@ -10,6 +10,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
+import { RowActions } from "@/components/listing/row-actions";
 import { StatusBadge } from "@/components/listing/status-badge";
 import { useMe } from "@/lib/api";
 import { inr, useCreateListing, useListings } from "@/lib/listings";
@@ -59,6 +60,9 @@ export default function ListingsPage() {
                 <TableHead>Status</TableHead>
                 <TableHead className="hidden sm:table-cell">Photos</TableHead>
                 <TableHead className="text-right">Rent</TableHead>
+                <TableHead className="w-12">
+                  <span className="sr-only">Actions</span>
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -75,6 +79,9 @@ export default function ListingsPage() {
                   </TableCell>
                   <TableCell className="hidden tabular-nums sm:table-cell">{l.photo_count}</TableCell>
                   <TableCell className="text-right tabular-nums">{inr(l.rent)}</TableCell>
+                  <TableCell>
+                    <RowActions listing={l} />
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

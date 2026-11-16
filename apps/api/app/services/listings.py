@@ -12,6 +12,7 @@ from app.core.db import Tx
 from app.core.errors import AppError
 from app.domain.listing import LatLng, Listing, ListingDraft
 from app.domain.state_machine import Action, TransitionError, next_status
+from app.jobs.runs import JobRefs
 
 _COLUMNS = [f for f in ListingDraft.model_fields if f != "location"]
 
@@ -24,6 +25,14 @@ _SELECT = f"""
            (select count(*) from listing_photos p where p.listing_id = l.id and p.confirmed) as photo_count
     from listings l
 """
+
+
+async def queue_index(tx: Tx, listing: Listing) -> None:
+    """Refresh search chunks after commit (embed-listing). Drafts were never indexed, so skip them."""
+    from app.jobs.dispatcher import dispatcher  # imported late: the dispatcher module reads settings
+
+    await dispatcher.enqueue(tx, "embed-listing",
+                             JobRefs(entity="listing", entity_id=listing.id, owner_id=listing.landlord_id))
 
 
 def _to_listing(row: dict[str, Any]) -> Listing:
@@ -77,6 +86,8 @@ async def save_draft(tx: Tx, listing: Listing, draft: ListingDraft, expected_ver
     if row is None:
         raise AppError(409, "version_conflict", "This listing changed since you opened it. Reload to see the latest.",
                        {"current_version": listing.version})
+    if listing.status == "published":
+        await queue_index(tx, listing)
     return await get(tx, listing.id)
 
 
@@ -96,6 +107,8 @@ async def set_location(tx: Tx, listing: Listing, point: LatLng, locality_id: UUI
         """,
         (point.lng, point.lat, city, None if mismatch else locality_id, Jsonb(flags), listing.id),
     )
+    if listing.status == "published":
+        await queue_index(tx, listing)
     return await get(tx, listing.id)
 
 
@@ -129,4 +142,5 @@ async def transition(tx: Tx, listing: Listing, action: Action, actor_id: UUID, r
         "insert into listing_events (listing_id, from_status, to_status, actor_id, reason) values (%s, %s, %s, %s, %s)",
         (listing.id, listing.status, target, actor_id, reason),
     )
+    await queue_index(tx, listing)  # publish/resume add chunks; pause/let remove them
     return await get(tx, listing.id)

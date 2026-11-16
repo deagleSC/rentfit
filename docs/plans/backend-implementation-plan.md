@@ -233,6 +233,8 @@ Rules as in Hirevine: events carry IDs only; side effects only in `step.run`; st
 | `notify-enquiry` | `enquiry/message_created` | in-app notification row | — |
 | `housekeeping` | cron `*/30 * * * *` | DB ping, resend stuck runs, purge expired `commute_cache` | — |
 
+**As built (Phase 2):** one event `listing/changed` (publish, resume, pause, let, and edits/pin moves of a published listing) instead of `listing/published` + `listing/updated`; the function deletes chunks when the listing is not published. Embeddings: Edge Function `embed` (gte-small via Supabase's built-in inference, 384 dims, free), shared secret in `x-embed-key`; `HashingEmbedder` when `EMBED_FUNCTION_URL` is unset (tests). Chunk 0 is a summary written from the fields; title + description follow (contacts stripped). Unchanged chunks keep their vectors.
+
 A published listing is visible to SQL filters and the map immediately; it joins vector/full-text results once `embed-listing` finishes (seconds). `JOB_DISPATCHER=inline` runs functions synchronously in-process (tests, e2e, seed), same code path.
 
 ---
@@ -330,6 +332,8 @@ parse_query ─▶ [clarify] ─▶ search ─▶ [relax] ─▶ enrich ─▶ r
 - **Median rents:** hand-set per locality and bhk in `seed_data/<city>/rents.csv` (no reliable open source); used only for fallback rent suggestions.
 - Attribution "© OpenStreetMap contributors" in the map and footer.
 
+**As built (Phase 2), notes:** `scripts/build_locality_notes.py` writes one `osm` note per locality from the counted facts (schools, hospitals, parks, supermarkets), the nearest metro, suburban rail station and hospital, and tech parks within 5 km, then embeds it. "Main roads crossing it" was dropped (no clean OSM signal at Voronoi-cell granularity). 230 notes in production.
+
 ### 14.2 Listings (`scripts/seed.py`, no model calls)
 
 1. Reference data from `seed_data/` (cities, localities, POIs, notes).
@@ -337,6 +341,8 @@ parse_query ─▶ [clarify] ─▶ search ─▶ [relax] ─▶ enrich ─▶ r
 3. Listings generated **in code**: random but plausible fields per locality (bhk distribution, rent around locality median ± 25%, furnishing, tenant preference, amenities), a random pin inside the locality polygon, and a description from varied templates (some Hinglish). Placeholder photos from a small committed set.
 4. Each listing is inserted through `apply_patches` + `transition(publish)`, then `embed-listing` runs inline.
 5. `--count` (default **50**, spread over the cities) and `--seed` for repeatable output.
+
+**As built (Phase 2):** seed landlords/tenants are created once via the Supabase admin API (`SEED_PASSWORD`) and reused; a committed run first deletes the seed landlords' earlier listings. Placeholder photos are 6 committed WebP images (3–6 per listing). The publish's `embed-listing` job runs in the same transaction (`IndexNow` stands in for the dispatcher), so an unembedded listing is never committed. There is no scratch DB (production only), so `--count 600 --dry-run` builds, verifies and rolls back each listing; Phase 4's retrieval eval will need the 600 committed or a separate project.
 
 **Count:** 50 is the dev default. Evals and demos use a scratch DB seeded with `--count 600` (still free), because with 50 most localities have no listings, rent suggestions fall back to medians, and retrieval metrics are meaningless.
 

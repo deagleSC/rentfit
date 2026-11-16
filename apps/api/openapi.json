@@ -675,6 +675,55 @@
         "title": "LocationResult",
         "type": "object"
       },
+      "MapPin": {
+        "properties": {
+          "bhk": {
+            "title": "Bhk",
+            "type": "integer"
+          },
+          "furnishing": {
+            "title": "Furnishing",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "locality": {
+            "title": "Locality",
+            "type": "string"
+          },
+          "location": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "title": "Location",
+            "type": "array"
+          },
+          "rent": {
+            "title": "Rent",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "location",
+          "bhk",
+          "rent",
+          "furnishing",
+          "locality"
+        ],
+        "title": "MapPin",
+        "type": "object"
+      },
       "Me": {
         "properties": {
           "city": {
@@ -958,6 +1007,28 @@
           "data"
         ],
         "title": "Ok[list[Locality]]",
+        "type": "object"
+      },
+      "Ok_list_MapPin__": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/MapPin"
+            },
+            "title": "Data",
+            "type": "array"
+          },
+          "success": {
+            "const": true,
+            "default": true,
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "Ok[list[MapPin]]",
         "type": "object"
       },
       "Ok_list_Photo__": {
@@ -3641,6 +3712,93 @@
         "summary": "List Pois",
         "tags": [
           "reference"
+        ]
+      }
+    },
+    "/v1/tenant/map/listings": {
+      "get": {
+        "operationId": "map_listings_v1_tenant_map_listings_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "city",
+            "required": true,
+            "schema": {
+              "title": "City",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok_list_MapPin__"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Map Listings",
+        "tags": [
+          "tenant"
         ]
       }
     }

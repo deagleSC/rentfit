@@ -10,9 +10,9 @@ from app.core.config import get_settings
 
 
 def all_functions() -> list[inngest.Function[Any]]:
-    from app.jobs.functions import housekeeping, selftest
+    from app.jobs.functions import embed, housekeeping, selftest
 
-    fns: list[inngest.Function[Any]] = [housekeeping.housekeeping]
+    fns: list[inngest.Function[Any]] = [housekeeping.housekeeping, embed.embed_listing, embed.embed_locality_notes]
     if get_settings().is_dev:
         fns.append(selftest.selftest)  # exit-check function; not served in production
     return fns

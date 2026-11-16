@@ -27,3 +27,12 @@ export function useCities() {
     staleTime: 60 * 60 * 1000,
   });
 }
+
+export function useMapPins(city: string | undefined) {
+  return useQuery({
+    queryKey: ["map-pins", city],
+    queryFn: () => unwrap(api.GET("/v1/tenant/map/listings", { params: { query: { city: city ?? "" } } })),
+    enabled: !!city,
+    staleTime: 60 * 1000,
+  });
+}
