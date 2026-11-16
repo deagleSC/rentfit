@@ -83,7 +83,8 @@ def current_view(listing: Listing) -> dict[str, Any]:
     return d
 
 
-async def to_patches(tx: Tx, listing: Listing, upd: ListingUpdate, today: date) -> tuple[list[Any], list[str]]:
+async def to_patches(tx: Tx, listing: Listing, upd: ListingUpdate, today: date,
+                     message: str = "") -> tuple[list[Any], list[str]]:
     """Model output → patches. Returns (patches, notes for the reply)."""
     patches: list[Any] = []
     notes: list[str] = []
@@ -118,8 +119,21 @@ async def to_patches(tx: Tx, listing: Listing, upd: ListingUpdate, today: date) 
                 patches.append(SetField(field="city", value=match.city))
     patches += [AddAmenity(amenity=a) for a in upd.add_amenities]
     patches += [RemoveAmenity(amenity=a) for a in upd.remove_amenities]
-    patches += [SetField(field=f, value=None) for f in upd.clear]
+    patches += [SetField(field=f, value=None) for f in upd.clear if mentions(message, f)]
     return patches, notes
+
+
+# A model may over-reach with `clear`; only clear a field the message actually names.
+CLEAR_WORDS: dict[str, tuple[str, ...]] = {
+    "maintenance": ("maintenance",), "sqft": ("sqft", "sq ft", "area", "size"), "floor": ("floor",),
+    "total_floors": ("floors", "storey"), "pets": ("pet",), "parking": ("parking",), "gated": ("gated",),
+    "no_brokerage": ("brokerage", "broker"), "title": ("title",), "description": ("description",),
+}
+
+
+def mentions(message: str, field: str) -> bool:
+    m = message.lower()
+    return any(w in m for w in CLEAR_WORDS.get(field, (field,)))
 
 
 def describe(changes: list[Change], locality_name: str | None) -> str:
@@ -169,7 +183,7 @@ async def understand_apply_ask(state: ListingChatState, config: RunnableConfig) 
         deadline=deadline_in(45), sync=True,
     )
     upd: ListingUpdate = res.value
-    patches, notes = await to_patches(tx, listing, upd, today)
+    patches, notes = await to_patches(tx, listing, upd, today, message)
 
     changes: list[Change] = []
     if patches:

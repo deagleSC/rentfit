@@ -63,6 +63,8 @@ SYSTEM = (
     "in months ('2 months deposit'), set deposit_months, not deposit. 'Semi' = semi, 'fully furnished' = "
     "full. 'Bachelors also ok' / 'anyone' = tenant_pref any; 'family only' = family. 'Immediately' / "
     "'ready to move' = available_now. Dates are relative to today. Bangalore/Bengaluru = bangalore. "
+    "'Remove the gym' / 'no lift' means remove_amenities. Use `clear` ONLY for a field the landlord explicitly "
+    "asks to delete (e.g. 'remove the maintenance amount'); otherwise leave `clear` empty. "
     "If the message answers the assistant's last question, read it as that answer (e.g. a bare '2' after "
     "'How many bedrooms?' is bhk 2). Ignore phone numbers, emails and links.\n" + UNTRUSTED_RULE
 )
@@ -77,7 +79,7 @@ def _user(data: ListingUpdateInput) -> str:
 LISTING_UPDATE = register(
     Prompt(
         id="listing_update",
-        version=1,
+        version=2,
         system=SYSTEM,
         input=ListingUpdateInput,
         output=ListingUpdate,
