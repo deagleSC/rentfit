@@ -35,8 +35,8 @@ export function CitiesMap({
                 data-testid={`city-marker-${c.slug}`}
                 className="block size-4 rounded-full border-2 border-background bg-primary shadow"
               />
+              <MarkerLabel position="bottom">{c.name}</MarkerLabel>
             </MarkerContent>
-            <MarkerLabel position="bottom">{c.name}</MarkerLabel>
           </MapMarker>
         ))}
       </Map>
