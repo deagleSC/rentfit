@@ -1,0 +1,14 @@
+{
+  "smoke_extract": {
+    "version": 1,
+    "hash": "19f946d934b8ac13"
+  },
+  "smoke_parse": {
+    "version": 1,
+    "hash": "773bed2410849d00"
+  },
+  "smoke_reply": {
+    "version": 1,
+    "hash": "a969c1dfb3e98a37"
+  }
+}

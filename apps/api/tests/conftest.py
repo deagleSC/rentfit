@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 import time
 import uuid
 from collections.abc import AsyncIterator
@@ -100,7 +101,6 @@ async def db(monkeypatch: pytest.MonkeyPatch) -> AsyncIterator[RollbackDb]:
         await conn.execute("set local search_path = public, extensions")
         rdb = RollbackDb(conn)
 
-        from app.core import auth as auth_module
         from app.core import db as db_module
 
         @asynccontextmanager
@@ -114,8 +114,13 @@ async def db(monkeypatch: pytest.MonkeyPatch) -> AsyncIterator[RollbackDb]:
             for callback in tx._after_commit:
                 await callback()
 
-        monkeypatch.setattr(db_module, "transaction", rolled_back)
-        monkeypatch.setattr(auth_module, "transaction", rolled_back)
+        import app.llm.wrapper  # noqa: F401  (load modules that import `transaction` before patching)
+        import app.main  # noqa: F401
+
+        original = db_module.transaction
+        for mod in [m for name, m in sys.modules.items() if name.startswith("app.")]:
+            if getattr(mod, "transaction", None) is original:
+                monkeypatch.setattr(mod, "transaction", rolled_back)
         yield rdb
     finally:
         await conn.execute("rollback")
@@ -130,3 +135,14 @@ async def api() -> AsyncIterator[httpx.AsyncClient]:
     transport = httpx.ASGITransport(app=create_app())
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
         yield client
+
+
+@pytest.fixture(autouse=True)
+def no_real_pool(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Tests must never open the app's real connection pool: it points at production and would commit."""
+    from app.core import db as db_module
+
+    async def refuse() -> None:
+        raise RuntimeError("tests must use the `db` fixture (rolled-back transaction), not the real pool")
+
+    monkeypatch.setattr(db_module, "get_pool", refuse)

@@ -9,7 +9,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from app.api.routers import me
+from app.api.routers import me, reference
 from app.core.config import get_settings
 from app.core.db import close_pool
 from app.core.errors import Ok, install_error_handlers, ok
@@ -47,6 +47,7 @@ def create_app() -> FastAPI:
         return ok(Health(ok=True, version=VERSION))
 
     app.include_router(me.router)
+    app.include_router(reference.router)
     return app
 
 
