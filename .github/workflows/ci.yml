@@ -41,7 +41,7 @@ jobs:
       - name: requirements.txt matches uv.lock
         run: |
           uv export -q --no-dev --no-hashes -o /tmp/requirements.txt
-          diff -u requirements.txt /tmp/requirements.txt
+          diff -u <(grep -v '^#' requirements.txt) <(grep -v '^#' /tmp/requirements.txt)
 
   web:
     runs-on: ubuntu-latest
