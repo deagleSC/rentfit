@@ -66,10 +66,13 @@ async def save_draft(tx: Tx, listing: Listing, draft: ListingDraft, expected_ver
     """Write the draft fields if nobody else changed the listing since `expected_version` (409 otherwise)."""
     values = draft.model_dump(exclude={"location"})
     sets = ", ".join(f"{c} = %({c})s" for c in _COLUMNS)
+    # Choosing an area resolves a typed-vs-pin locality mismatch.
+    resolved = draft.locality_id != listing.locality_id
     row = await tx.fetchone(
-        f"update listings set {sets}, version = version + 1, updated_at = now() "
+        f"update listings set {sets}, version = version + 1, updated_at = now(), "
+        "flags = case when %(resolved)s then flags - 'locality_mismatch' else flags end "
         "where id = %(id)s and version = %(version)s returning id",
-        {**values, "id": listing.id, "version": expected_version},
+        {**values, "id": listing.id, "version": expected_version, "resolved": resolved},
     )
     if row is None:
         raise AppError(409, "version_conflict", "This listing changed since you opened it. Reload to see the latest.",

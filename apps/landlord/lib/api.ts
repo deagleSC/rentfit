@@ -27,3 +27,12 @@ export function useCities() {
     staleTime: 60 * 60 * 1000,
   });
 }
+
+export function useLocalities(city: string | null | undefined) {
+  return useQuery({
+    queryKey: qk.localities(city ?? ""),
+    enabled: Boolean(city),
+    queryFn: () => unwrap(api.GET("/v1/localities", { params: { query: { city: city as string } } })),
+    staleTime: 60 * 60 * 1000,
+  });
+}

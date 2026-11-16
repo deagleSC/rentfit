@@ -48,9 +48,21 @@ READY = "Everything needed is there. Review the preview and publish when you're 
 
 LABELS: dict[str, str] = {
     "bhk": "{} BHK", "rent": "rent ₹{:,}", "deposit": "deposit ₹{:,}", "maintenance": "maintenance ₹{:,}",
-    "furnishing": "{} furnished", "sqft": "{} sq ft", "floor": "floor {}", "total_floors": "{} floors",
-    "tenant_pref": "for {}", "available_from": "available from {}", "city": "in {}",
+    "furnishing": "{}", "sqft": "{} sq ft", "floor": "floor {}", "total_floors": "{} floors",
+    "tenant_pref": "{}", "available_from": "available from {}", "city": "in {}",
 }
+WORDS: dict[str, dict[Any, str]] = {
+    "city": {"bangalore": "Bengaluru", "mumbai": "Mumbai"},
+    "furnishing": {"unfurnished": "unfurnished", "semi": "semi-furnished", "full": "fully furnished"},
+    "tenant_pref": {"any": "open to anyone", "family": "families only", "bachelors": "bachelors only"},
+}
+
+
+def _pretty(field: str, value: Any) -> Any:
+    if field == "available_from" and isinstance(value, str):
+        d = date.fromisoformat(value)
+        return "now" if d <= date.today() else d.strftime("%-d %b %Y")
+    return WORDS.get(field, {}).get(value, value)
 
 
 class ListingChatState(TypedDict, total=False):
@@ -143,7 +155,7 @@ def describe(changes: list[Change], locality_name: str | None) -> str:
             if locality_name:
                 parts.append(f"in {locality_name}")
         elif c.field in LABELS and c.after is not None:
-            parts.append(LABELS[c.field].format(c.after))
+            parts.append(LABELS[c.field].format(_pretty(c.field, c.after)))
         elif c.field == "amenities":
             parts.append("amenities updated")
         elif c.field == "description":

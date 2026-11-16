@@ -111,6 +111,12 @@ async def test_pin_mismatch_is_flagged_not_overwritten(db, api) -> None:  # type
     assert data["listing"]["locality_id"] == wf["id"]  # the typed locality is kept until the landlord decides
     assert data["listing"]["flags"]["locality_mismatch"]["pin"] == kor["id"]
 
+    # Choosing the pin's area clears the warning.
+    res = await api.patch(f"/v1/landlord/listings/{lid}", headers={**h, "If-Match": str(data["listing"]["version"])},
+                          json=[{"op": "set", "field": "locality_id", "value": kor["id"]}])
+    after = res.json()["data"]["listing"]
+    assert after["locality_id"] == kor["id"] and "locality_mismatch" not in after["flags"]
+
 
 async def test_pin_outside_coverage(db, api) -> None:  # type: ignore[no-untyped-def]
     h = await user(db, api, "landlord")
