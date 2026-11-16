@@ -858,6 +858,24 @@
         "title": "Ok[PhotoUpload]",
         "type": "object"
       },
+      "Ok_RentSuggestion_": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/RentSuggestion"
+          },
+          "success": {
+            "const": true,
+            "default": true,
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "Ok[RentSuggestion]",
+        "type": "object"
+      },
       "Ok_TurnResult_": {
         "properties": {
           "data": {
@@ -1274,6 +1292,103 @@
           "amenity"
         ],
         "title": "RemoveAmenity",
+        "type": "object"
+      },
+      "RentSuggestion": {
+        "properties": {
+          "basis": {
+            "enum": [
+              "comparables",
+              "locality_estimate",
+              "not_enough_info"
+            ],
+            "title": "Basis",
+            "type": "string"
+          },
+          "comparable_ids": {
+            "default": [],
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Comparable Ids",
+            "type": "array"
+          },
+          "count": {
+            "default": 0,
+            "title": "Count",
+            "type": "integer"
+          },
+          "p25": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P25"
+          },
+          "p50": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P50"
+          },
+          "p75": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P75"
+          },
+          "position": {
+            "anyOf": [
+              {
+                "enum": [
+                  "below",
+                  "within",
+                  "above"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Position"
+          },
+          "radius_m": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Radius M"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "basis",
+          "text"
+        ],
+        "title": "RentSuggestion",
         "type": "object"
       },
       "SetField": {
@@ -2890,6 +3005,94 @@
           }
         ],
         "summary": "Publish",
+        "tags": [
+          "landlord"
+        ]
+      }
+    },
+    "/v1/landlord/listings/{listing_id}/rent-suggestion": {
+      "get": {
+        "operationId": "get_rent_suggestion_v1_landlord_listings__listing_id__rent_suggestion_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "listing_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Listing Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok_RentSuggestion_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Rent Suggestion",
         "tags": [
           "landlord"
         ]

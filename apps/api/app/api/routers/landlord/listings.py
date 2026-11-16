@@ -13,7 +13,7 @@ from app.core.errors import ERROR_RESPONSES, AppError, Ok, ok
 from app.domain.listing import LatLng, Listing, ListingDraft
 from app.domain.listing_patches import Change, Patch, PatchError, apply_patches
 from app.domain.state_machine import Action, check_publish
-from app.services import geo
+from app.services import geo, rent_suggestion
 from app.services import listings as repo
 
 router = APIRouter(prefix="/v1/landlord/listings", tags=["landlord"], responses=ERROR_RESPONSES)
@@ -155,3 +155,10 @@ async def resume(listing_id: UUID, principal: PrincipalDep) -> Ok[Listing]:
 @router.post("/{listing_id}/let", response_model=Ok[Listing])
 async def mark_let(listing_id: UUID, principal: PrincipalDep) -> Ok[Listing]:
     return await _transition(listing_id, principal, "let")
+
+
+@router.get("/{listing_id}/rent-suggestion", response_model=Ok[rent_suggestion.RentSuggestion])
+async def get_rent_suggestion(listing_id: UUID, principal: PrincipalDep) -> Ok[rent_suggestion.RentSuggestion]:
+    async with user_tx(principal) as (tx, user):
+        require_role(user, "landlord")
+        return ok(await rent_suggestion.suggest(tx, await repo.get(tx, listing_id)))
