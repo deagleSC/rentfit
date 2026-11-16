@@ -34,6 +34,8 @@ class Settings(BaseSettings):
     supabase_service_key: str = ""
     photo_bucket: str = "listing-photos"
     photo_max_bytes: int = 5 * 1024 * 1024
+    # This API's own URL as browsers reach it (dev/test in-memory storage serves uploads from here).
+    public_api_url: str = "http://127.0.0.1:8000"
     photos_min: int = 3
     photos_max: int = 15
 
