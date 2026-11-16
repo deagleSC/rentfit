@@ -4,6 +4,7 @@ rate limits and deadlines (backend plan §11.2, contract-test style)."""
 from __future__ import annotations
 
 import json
+from datetime import UTC, datetime
 
 import pytest
 
@@ -125,6 +126,10 @@ async def test_fallback_model_is_recorded(router, db):
 
 async def test_sync_calls_use_the_rpm_bucket(router, monkeypatch):
     monkeypatch.setattr(get_settings(), "llm_sync_rpm_cap", 1)
+    # Pin the clock: crossing a minute boundary between the two calls would open a fresh bucket.
+    fixed = datetime(2030, 1, 1, 12, 0, 30, tzinfo=UTC)
+    real_throttle = budget.throttle
+    monkeypatch.setattr(budget, "throttle", lambda cap=None, now=None: real_throttle(cap, now=fixed))
     router.reply(tool_response(GOOD))
     await call(router, sync=True, cache_enabled=False)
     with pytest.raises(RateLimited):
