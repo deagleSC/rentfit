@@ -56,7 +56,7 @@ class ParseInput(BaseModel):
 
 
 class ParseOutput(BaseModel):
-    city: Literal["bangalore", "mumbai", "kolkata"] | None = None
+    city: Literal["bangalore", "mumbai"] | None = None
     bhk: list[int] = Field(default_factory=list)
     rent_max: int | None = Field(default=None, ge=1000)
     localities: list[str] = Field(default_factory=list)
@@ -71,7 +71,7 @@ def _parse_user(data: ParseInput) -> str:
 SMOKE_PARSE = register(
     Prompt(
         id="smoke_parse",
-        version=1,
+        version=2,
         system=(
             "You turn a tenant's rental search in India (English or Hindi-English mix) into filters. "
             "'Bangalore'/'Bengaluru' is bangalore. Amounts like '35k' mean 35000. Leave a field empty "

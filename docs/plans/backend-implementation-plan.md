@@ -22,7 +22,7 @@ The backend owns every rule, every database read and write, and every model call
 | Relaxation is explicit | `relax` returns the list of loosened constraints, and the response must state them |
 | Cost-aware | All model calls go through `call_structured()` (cache, daily cap, RPM throttle, fallback) |
 
-**Decisions (2026-11-16):** login is required in both apps (no anonymous search); listings are assumed legitimate (no scam/injection screening, no moderation); enquiries are in-app only and contact details are never revealed.
+**Decisions (2026-11-16):** cities are Bangalore and Mumbai (Kolkata dropped for now); login is required in both apps (no anonymous search); listings are assumed legitimate (no scam/injection screening, no moderation); enquiries are in-app only and contact details are never revealed.
 
 Out of scope for v1: payments, rent agreements, KYC, mobile apps, admin/moderation app, saved-search alerts, WhatsApp bot, Hindi voice input (each tracked as a GitHub issue).
 
@@ -322,8 +322,10 @@ parse_query ─▶ [clarify] ─▶ search ─▶ [relax] ─▶ enrich ─▶ r
 
 ### 14.1 OpenStreetMap (`scripts/fetch_osm.py`, run once, output committed)
 
+**As built (Phase 0):** localities are OSM `place=suburb` nodes (plus a per-city list of rental areas tagged as neighbourhoods), each with a Voronoi-cell polygon clipped to 3 km around the points; OSM admin boundaries were too inconsistent. POIs of one kind within 300 m are merged (800 m for tech parks), and major tech parks are looked up by name. Bangalore: 106 localities, 360 POIs; Mumbai: 124 localities, 294 POIs.
+
 - **Localities:** Overpass query per city for `boundary=administrative` (ward / neighbourhood admin levels) and `place=suburb|neighbourhood` polygons. Pick the level that gives roughly 20–40 named areas per city; simplify geometry (Douglas-Peucker ~20 m) → `seed_data/<city>/localities.geojson`. Coverage differs by city; points without polygons get a 1 km buffer.
-- **POIs:** `office=*` / `landuse=commercial` tech parks (curated name list per city), `railway=station` + `station=subway` (metro), suburban rail stations (Mumbai, Kolkata), hospitals, colleges.
+- **POIs:** `office=*` / `landuse=commercial` tech parks (curated name list per city), `railway=station` + `station=subway` (metro), suburban rail stations (Mumbai), hospitals, colleges.
 - **Locality notes (source `osm`):** computed in code per locality and turned into text by template: nearest metro and distance, counts of schools, hospitals, parks and supermarkets within the polygon, main roads crossing it. The numbers are kept in `facts` so citations can be checked.
 - **Median rents:** hand-set per locality and bhk in `seed_data/<city>/rents.csv` (no reliable open source); used only for fallback rent suggestions.
 - Attribution "© OpenStreetMap contributors" in the map and footer.
@@ -334,7 +336,7 @@ parse_query ─▶ [clarify] ─▶ search ─▶ [relax] ─▶ enrich ─▶ r
 2. Synthetic landlords: 10 accounts, synthetic tenants: 3 accounts (password logins for dev).
 3. Listings generated **in code**: random but plausible fields per locality (bhk distribution, rent around locality median ± 25%, furnishing, tenant preference, amenities), a random pin inside the locality polygon, and a description from varied templates (some Hinglish). Placeholder photos from a small committed set.
 4. Each listing is inserted through `apply_patches` + `transition(publish)`, then `embed-listing` runs inline.
-5. `--count` (default **50**, spread over the three cities) and `--seed` for repeatable output.
+5. `--count` (default **50**, spread over the cities) and `--seed` for repeatable output.
 
 **Count:** 50 is the dev default. Evals and demos use a scratch DB seeded with `--count 600` (still free), because with 50 most localities have no listings, rent suggestions fall back to medians, and retrieval metrics are meaningless.
 
@@ -381,7 +383,7 @@ Each phase is done when its exit check passes. No dates. Each phase adds an **As
 
 | # | Phase | Backend tasks | Exit check |
 | --- | --- | --- | --- |
-| 0 | Foundation | `apps/api` skeleton, config, envelope, `/health`; phase-0 migrations, `app` helpers, roles; auth (password + magic link JWTs), `/me`, profile trigger; `fetch_osm.py` + reference seed + `/cities` `/localities` `/pois`; LLM layer (wrapper, cache, budget, fallback, Langfuse, FakeModel, prompt lock, smoke test); Inngest client + dispatcher + `job_runs` + `housekeeping`; Dockerfile; CI (ruff, mypy, pytest, gitleaks, Inngest sync); Vercel deploy | RLS tests show two landlords cannot read each other's rows; `/cities` returns 3 centers and `/localities` returns OSM polygons for each city; a test Inngest function retries a failed step without repeating finished ones; the budget blocks calls at the cap; smoke test records numbers for both models |
+| 0 | Foundation | `apps/api` skeleton, config, envelope, `/health`; phase-0 migrations, `app` helpers, roles; auth (password + magic link JWTs), `/me`, profile trigger; `fetch_osm.py` + reference seed + `/cities` `/localities` `/pois`; LLM layer (wrapper, cache, budget, fallback, Langfuse, FakeModel, prompt lock, smoke test); Inngest client + dispatcher + `job_runs` + `housekeeping`; Dockerfile; CI (ruff, mypy, pytest, gitleaks, Inngest sync); Vercel deploy | RLS tests show two landlords cannot read each other's rows; `/cities` returns the city centers and `/localities` returns OSM polygons for each city; a test Inngest function retries a failed step without repeating finished ones; the budget blocks calls at the cap; smoke test records numbers for both models |
 | 1 | Landlord | Listing migrations, `ListingDraft`, patches, state machine, publish checks, listing CRUD with `If-Match`, photos (signed upload, 5 MB limit), `PUT /location` + PostGIS lookup, `listing_agent` (extract, ask missing, edit, locate, contact stripping) with SSE, checkpoint tables, rent suggestion | An API test creates a listing from one free-text message plus answers, edits it by chat, and the chat patch equals the form patch for the same change; publish rejects an incomplete listing with reasons; extraction eval ≥ 95% on the first 20 descriptions |
 | 2 | Search data | `retrieval` migration, Edge Function `embed`, `HashingEmbedder`, `embed-listing`, OSM locality notes + `embed-locality-notes`, `seed.py` with `--count` | `seed.py --count 50` and `--count 600` both finish with every listing published and embedded, with no model calls |
 | 3 | Tenant | Tenant migrations, `SearchFilters` + slang map, `hybrid.py`, `relax.py`, commute service (ORS + haversine) + cache, locality notes retrieval, rerank, `citations.py`, `search_agent` with SSE + ordinal follow-ups, `public_listings` + `/map/listings`, shortlists, saved searches, enquiries + `notify-enquiry` | An API test runs a 4-turn conversation (initial, "cheaper", "the 2nd one's commute?", "near metro instead") with correct filter patches, a reported relaxation, cards, pins and only valid citations; an enquiry reaches the landlord inbox, and no model input contains a phone number or email (asserted on the FakeModel log) |
@@ -394,7 +396,7 @@ Phase 3's map endpoint can start once phase 2 seeds listings, in parallel with t
 
 ## 18. Open questions and verify list
 
-- Verify OSM boundary coverage per city in phase 0 (which admin level or `place=*` set gives usable localities for Bangalore, Mumbai, Kolkata).
+- Kolkata: re-add when Overpass serves its queries (split the bbox into smaller tiles).
 - Verify OpenRouteService free-tier limits and the India road network quality in phase 3.
 - Verify `tsvector` `simple` vs `english` config on the Hinglish filter-parsing set.
 - Verify the Gemma models' schema-pass rate on `listing_extract` and `search_parse` in the phase 0 smoke test; swap if below 95%.

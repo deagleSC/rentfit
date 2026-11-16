@@ -1,9 +1,9 @@
 """Fetch reference data from OpenStreetMap once and write it to scripts/seed_data/ (backend plan §14.1).
 
-    uv run python scripts/fetch_osm.py [bangalore mumbai kolkata]
+    uv run python scripts/fetch_osm.py [bangalore mumbai] [--tech-parks]
 
 Localities: OSM `place=suburb` nodes (the names renters use). OSM admin boundaries are inconsistent
-across the three cities (Bengaluru wards are villages, Mumbai/Kolkata have few polygons), so each
+across cities (Bengaluru wards are villages, Mumbai has few polygons), so each
 locality's polygon is its Voronoi cell, clipped to 3 km around the points and to the city bbox:
 every pin then maps to the nearest named locality, with no gaps.
 
@@ -27,7 +27,12 @@ from shapely import MultiPoint, MultiPolygon, Point, Polygon, box
 from shapely.geometry import mapping, shape
 from shapely.ops import unary_union, voronoi_diagram
 
-OVERPASS = "https://overpass-api.de/api/interpreter"
+# Public Overpass instances, tried in turn (the main one often returns 502/504 under load).
+OVERPASS = [
+    "https://overpass-api.de/api/interpreter",
+    "https://overpass.kumi.systems/api/interpreter",
+    "https://overpass.private.coffee/api/interpreter",
+]
 OUT = Path(__file__).resolve().parent / "seed_data"
 HEADERS = {"User-Agent": "rentfit-seed/0.1"}
 
@@ -35,7 +40,6 @@ HEADERS = {"User-Agent": "rentfit-seed/0.1"}
 CITIES: dict[str, dict[str, Any]] = {
     "bangalore": {"name": "Bengaluru", "bbox": (12.83, 77.45, 13.14, 77.78), "center": (77.5946, 12.9716)},
     "mumbai": {"name": "Mumbai", "bbox": (18.89, 72.77, 19.28, 72.99), "center": (72.8777, 19.0760)},
-    "kolkata": {"name": "Kolkata", "bbox": (22.45, 88.25, 22.66, 88.45), "center": (88.3639, 22.5726)},
 }
 
 MIN_SPACING_DEG = 0.006  # ~650 m: merge suburb nodes closer than this
@@ -54,20 +58,22 @@ EXTRA_LOCALITIES: dict[str, list[str]] = {
                "Goregaon East", "Goregaon West", "Malad West", "Malad East", "Kandivali West", "Kandivali East",
                "Borivali West", "Borivali East", "Chembur", "Ghatkopar", "Mulund", "Vikhroli", "Kurla", "Juhu",
                "Santacruz", "Khar", "Dadar", "Matunga", "Sion", "Colaba", "Bhandup", "Jogeshwari", "Versova"],
-    "kolkata": ["Salt Lake", "Bidhannagar", "New Town", "Rajarhat", "Ballygunge", "Alipore", "Tollygunge",
-                "Behala", "Garia", "Jadavpur", "Dum Dum", "Lake Town", "Gariahat", "Park Circus", "Kasba",
-                "Bhowanipore", "Howrah", "Sector V"],
 }
 
 
 def overpass(query: str) -> list[dict[str, Any]]:
-    for attempt in range(5):
-        res = httpx.post(OVERPASS, data={"data": query}, headers=HEADERS, timeout=180)
-        if res.status_code == 200:
-            return list(res.json()["elements"])
-        time.sleep(10 * (attempt + 1))
-    res.raise_for_status()
-    return []
+    last: Exception | None = None
+    for attempt in range(6):
+        url = OVERPASS[attempt % len(OVERPASS)]
+        try:
+            res = httpx.post(url, data={"data": query}, headers=HEADERS, timeout=180)
+            if res.status_code == 200:
+                return list(res.json()["elements"])
+            last = httpx.HTTPStatusError(f"{res.status_code} from {url}", request=res.request, response=res)
+        except httpx.HTTPError as exc:
+            last = exc
+        time.sleep(5 * (attempt + 1))
+    raise RuntimeError(f"Overpass failed on every mirror: {last}")
 
 
 def lnglat(el: dict[str, Any]) -> tuple[float, float]:
@@ -85,6 +91,48 @@ def osm_key(el: dict[str, Any]) -> int:
 def name_of(el: dict[str, Any]) -> str | None:
     tags = el.get("tags", {})
     return tags.get("name:en") or tags.get("name")
+
+
+# Major employment hubs renters ask about ("20 min to Manyata"), looked up by name so coordinates come
+# from OSM. Generic name matching misses several of them.
+MAJOR_TECH_PARKS: dict[str, list[str]] = {
+    "bangalore": ["Manyata Tech Park", "Manyata Embassy Business Park", "International Tech Park", "ITPB",
+                  "Embassy Tech Village", "Embassy Golf Links", "Ecoworld", "Bagmane Tech Park",
+                  "Bagmane Constellation Business Park", "Global Village Tech Park", "Cessna Business Park",
+                  "Infosys", "Electronic City Phase 1", "Kalyani Tech Park", "Embassy Manyata"],
+    "mumbai": ["Mindspace", "Bandra Kurla Complex", "Hiranandani Business Park", "Nesco IT Park", "SEEPZ",
+               "Lodha iThink", "One BKC", "Kalpataru Inspire", "Raheja Mindspace", "Nirlon Knowledge Park"],
+}
+NOT_A_PARK = re.compile(r"residency|substation|society|apartment|hostel|bus stop|\(u/c\)", re.I)
+
+
+def major_tech_parks(slug: str) -> list[dict[str, Any]]:
+    s, w, n, e = CITIES[slug]["bbox"]
+    names = "|".join(MAJOR_TECH_PARKS.get(slug, []))
+    els = overpass(f'[out:json][timeout:120];nwr[name~"{names}",i]({s},{w},{n},{e});out center;')
+    out: dict[str, dict[str, Any]] = {}
+    for el in els:
+        nm = name_of(el)
+        tags = el.get("tags", {})
+        if not nm or NOT_A_PARK.search(nm) or tags.get("highway") or tags.get("railway") or tags.get("amenity"):
+            continue
+        if el["type"] == "node" and not tags.get("office") and not tags.get("landuse"):
+            continue
+        lng, lat = lnglat(el)
+        out.setdefault(nm.lower(), {"type": "Feature", "geometry": {"type": "Point", "coordinates": [lng, lat]},
+                                    "properties": {"name": nm, "kind": "tech_park", "osm_id": osm_key(el)}})
+    return list(out.values())
+
+
+def add_major_tech_parks(slug: str) -> None:
+    """Merge MAJOR_TECH_PARKS into an existing pois.geojson (run after fetch_city, or alone)."""
+    path = OUT / slug / "pois.geojson"
+    data = json.loads(path.read_text())
+    have = {f["properties"]["osm_id"] for f in data["features"]}
+    new = [f for f in major_tech_parks(slug) if f["properties"]["osm_id"] not in have]
+    data["features"].extend(new)
+    path.write_text(json.dumps(data) + "\n")
+    print(f"{slug}: +{len(new)} major tech parks: {sorted(f['properties']['name'] for f in new)}")
 
 
 def fetch_city(slug: str) -> None:
@@ -197,6 +245,11 @@ def fetch_city(slug: str) -> None:
 
 
 if __name__ == "__main__":
-    for slug in sys.argv[1:] or list(CITIES):
-        fetch_city(slug)
+    args = sys.argv[1:]
+    only_parks = "--tech-parks" in args
+    for slug in [a for a in args if not a.startswith("--")] or list(CITIES):
+        if not only_parks:
+            fetch_city(slug)
+            time.sleep(5)
+        add_major_tech_parks(slug)
         time.sleep(5)

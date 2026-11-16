@@ -1,6 +1,6 @@
 """Enable login for the restricted DB roles and set their passwords (run once per environment).
 
-    uv run python scripts/setup_roles.py
+    uv run python -m scripts.setup_roles
 
 Reads TEST_ADMIN_DATABASE_URL (owner connection), RENTFIT_API_DB_PASSWORD and RENTFIT_JOBS_DB_PASSWORD
 from apps/api/.env. Passwords are never in migrations. Also lets `postgres` `set role` into both
