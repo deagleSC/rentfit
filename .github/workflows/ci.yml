@@ -42,3 +42,30 @@ jobs:
         run: |
           uv export -q --no-dev --no-hashes -o /tmp/requirements.txt
           diff -u requirements.txt /tmp/requirements.txt
+
+  web:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv sync --frozen
+        working-directory: apps/api
+      - name: API client types
+        run: pnpm --filter @rentfit/api-client gen:api
+      - name: Types
+        run: pnpm typecheck
+      - name: Lint
+        run: pnpm lint
+      - name: Unit tests
+        run: pnpm turbo run test --filter=!@rentfit/api
+      - name: Build apps
+        run: pnpm turbo run build --filter=@rentfit/landlord --filter=@rentfit/tenant
