@@ -60,6 +60,59 @@
         "title": "Change",
         "type": "object"
       },
+      "ChatDetail": {
+        "properties": {
+          "cards": {
+            "items": {
+              "$ref": "#/components/schemas/ListingCard"
+            },
+            "title": "Cards",
+            "type": "array"
+          },
+          "chips": {
+            "items": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            "title": "Chips",
+            "type": "array"
+          },
+          "filters": {
+            "$ref": "#/components/schemas/SearchFilters"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "messages": {
+            "items": {
+              "$ref": "#/components/schemas/ChatMessageOut"
+            },
+            "title": "Messages",
+            "type": "array"
+          },
+          "pins": {
+            "items": {
+              "$ref": "#/components/schemas/Pin"
+            },
+            "title": "Pins",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "filters",
+          "chips",
+          "messages",
+          "cards",
+          "pins"
+        ],
+        "title": "ChatDetail",
+        "type": "object"
+      },
       "ChatHistory": {
         "properties": {
           "messages": {
@@ -123,6 +176,47 @@
         "title": "ChatMessage",
         "type": "object"
       },
+      "ChatMessageOut": {
+        "properties": {
+          "card_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Card Ids",
+            "type": "array"
+          },
+          "claims": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Claims",
+            "type": "array"
+          },
+          "content": {
+            "title": "Content",
+            "type": "string"
+          },
+          "relaxed": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Relaxed",
+            "type": "array"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          }
+        },
+        "required": [
+          "role",
+          "content"
+        ],
+        "title": "ChatMessageOut",
+        "type": "object"
+      },
       "ChatRequest": {
         "properties": {
           "message": {
@@ -136,6 +230,42 @@
           "message"
         ],
         "title": "ChatRequest",
+        "type": "object"
+      },
+      "ChatSummary": {
+        "properties": {
+          "chips": {
+            "items": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            "title": "Chips",
+            "type": "array"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "chips",
+          "updated_at"
+        ],
+        "title": "ChatSummary",
         "type": "object"
       },
       "City": {
@@ -174,6 +304,196 @@
           "default_zoom"
         ],
         "title": "City",
+        "type": "object"
+      },
+      "Commute": {
+        "properties": {
+          "max_minutes": {
+            "maximum": 180.0,
+            "minimum": 5.0,
+            "title": "Max Minutes",
+            "type": "integer"
+          },
+          "mode": {
+            "default": "car",
+            "enum": [
+              "car",
+              "two_wheeler",
+              "walk"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "poi_id": {
+            "format": "uuid",
+            "title": "Poi Id",
+            "type": "string"
+          },
+          "poi_name": {
+            "title": "Poi Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "poi_id",
+          "poi_name",
+          "max_minutes"
+        ],
+        "title": "Commute",
+        "type": "object"
+      },
+      "CommuteInfo": {
+        "properties": {
+          "minutes": {
+            "title": "Minutes",
+            "type": "integer"
+          },
+          "mode": {
+            "title": "Mode",
+            "type": "string"
+          },
+          "provider": {
+            "title": "Provider",
+            "type": "string"
+          },
+          "to": {
+            "title": "To",
+            "type": "string"
+          }
+        },
+        "required": [
+          "minutes",
+          "provider",
+          "mode",
+          "to"
+        ],
+        "title": "CommuteInfo",
+        "type": "object"
+      },
+      "EnquiryMessage": {
+        "properties": {
+          "body": {
+            "title": "Body",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "mine": {
+            "title": "Mine",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "mine",
+          "body",
+          "created_at"
+        ],
+        "title": "EnquiryMessage",
+        "type": "object"
+      },
+      "EnquiryStart": {
+        "properties": {
+          "listing_id": {
+            "format": "uuid",
+            "title": "Listing Id",
+            "type": "string"
+          },
+          "message": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "listing_id",
+          "message"
+        ],
+        "title": "EnquiryStart",
+        "type": "object"
+      },
+      "EnquirySummary": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "last_message": {
+            "title": "Last Message",
+            "type": "string"
+          },
+          "last_message_at": {
+            "format": "date-time",
+            "title": "Last Message At",
+            "type": "string"
+          },
+          "listing_id": {
+            "format": "uuid",
+            "title": "Listing Id",
+            "type": "string"
+          },
+          "listing_title": {
+            "title": "Listing Title",
+            "type": "string"
+          },
+          "locality": {
+            "title": "Locality",
+            "type": "string"
+          },
+          "other_name": {
+            "title": "Other Name",
+            "type": "string"
+          },
+          "rent": {
+            "title": "Rent",
+            "type": "integer"
+          },
+          "unread": {
+            "title": "Unread",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "listing_id",
+          "listing_title",
+          "locality",
+          "rent",
+          "other_name",
+          "last_message",
+          "last_message_at",
+          "unread"
+        ],
+        "title": "EnquirySummary",
+        "type": "object"
+      },
+      "EnquiryThread": {
+        "properties": {
+          "enquiry": {
+            "$ref": "#/components/schemas/EnquirySummary"
+          },
+          "messages": {
+            "items": {
+              "$ref": "#/components/schemas/EnquiryMessage"
+            },
+            "title": "Messages",
+            "type": "array"
+          }
+        },
+        "required": [
+          "enquiry",
+          "messages"
+        ],
+        "title": "EnquiryThread",
         "type": "object"
       },
       "ErrorBody": {
@@ -577,6 +897,146 @@
         "title": "Listing",
         "type": "object"
       },
+      "ListingCard": {
+        "properties": {
+          "amenities": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Amenities",
+            "type": "array"
+          },
+          "available_from": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Available From"
+          },
+          "bhk": {
+            "title": "Bhk",
+            "type": "integer"
+          },
+          "city": {
+            "title": "City",
+            "type": "string"
+          },
+          "commute": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CommuteInfo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "deposit": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deposit"
+          },
+          "furnishing": {
+            "title": "Furnishing",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "locality": {
+            "title": "Locality",
+            "type": "string"
+          },
+          "location": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "title": "Location",
+            "type": "array"
+          },
+          "metro": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MetroInfo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "rent": {
+            "title": "Rent",
+            "type": "integer"
+          },
+          "shortlisted": {
+            "default": false,
+            "title": "Shortlisted",
+            "type": "boolean"
+          },
+          "tenant_pref": {
+            "title": "Tenant Pref",
+            "type": "string"
+          },
+          "thumb_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Thumb Url"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "locality",
+          "city",
+          "bhk",
+          "rent",
+          "deposit",
+          "furnishing",
+          "tenant_pref",
+          "available_from",
+          "amenities",
+          "location"
+        ],
+        "title": "ListingCard",
+        "type": "object"
+      },
       "ListingCreate": {
         "properties": {
           "city": {
@@ -592,6 +1052,282 @@
           }
         },
         "title": "ListingCreate",
+        "type": "object"
+      },
+      "ListingDetail": {
+        "properties": {
+          "amenities": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Amenities",
+            "type": "array"
+          },
+          "available_from": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Available From"
+          },
+          "bhk": {
+            "title": "Bhk",
+            "type": "integer"
+          },
+          "city": {
+            "title": "City",
+            "type": "string"
+          },
+          "commute": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CommuteInfo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "deposit": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deposit"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "enquiry_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Enquiry Id"
+          },
+          "floor": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Floor"
+          },
+          "furnishing": {
+            "title": "Furnishing",
+            "type": "string"
+          },
+          "gated": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gated"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "locality": {
+            "title": "Locality",
+            "type": "string"
+          },
+          "locality_id": {
+            "format": "uuid",
+            "title": "Locality Id",
+            "type": "string"
+          },
+          "location": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "title": "Location",
+            "type": "array"
+          },
+          "maintenance": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maintenance"
+          },
+          "nearby": {
+            "items": {
+              "$ref": "#/components/schemas/NearbyPoi"
+            },
+            "title": "Nearby",
+            "type": "array"
+          },
+          "no_brokerage": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "No Brokerage"
+          },
+          "notes": {
+            "items": {
+              "$ref": "#/components/schemas/LocalityNote"
+            },
+            "title": "Notes",
+            "type": "array"
+          },
+          "parking": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parking"
+          },
+          "pets": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pets"
+          },
+          "photos": {
+            "items": {
+              "$ref": "#/components/schemas/PhotoUrls"
+            },
+            "title": "Photos",
+            "type": "array"
+          },
+          "published_at": {
+            "format": "date-time",
+            "title": "Published At",
+            "type": "string"
+          },
+          "rent": {
+            "title": "Rent",
+            "type": "integer"
+          },
+          "shortlisted": {
+            "title": "Shortlisted",
+            "type": "boolean"
+          },
+          "sqft": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sqft"
+          },
+          "tenant_pref": {
+            "title": "Tenant Pref",
+            "type": "string"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "total_floors": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total Floors"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "description",
+          "city",
+          "locality_id",
+          "locality",
+          "location",
+          "bhk",
+          "rent",
+          "deposit",
+          "maintenance",
+          "furnishing",
+          "sqft",
+          "floor",
+          "total_floors",
+          "tenant_pref",
+          "pets",
+          "parking",
+          "gated",
+          "no_brokerage",
+          "available_from",
+          "amenities",
+          "published_at",
+          "photos",
+          "nearby",
+          "notes",
+          "shortlisted",
+          "enquiry_id"
+        ],
+        "title": "ListingDetail",
         "type": "object"
       },
       "Locality": {
@@ -651,6 +1387,29 @@
           "median_rent"
         ],
         "title": "Locality",
+        "type": "object"
+      },
+      "LocalityNote": {
+        "properties": {
+          "chunk_id": {
+            "title": "Chunk Id",
+            "type": "integer"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "chunk_id",
+          "text",
+          "source"
+        ],
+        "title": "LocalityNote",
         "type": "object"
       },
       "LocationResult": {
@@ -781,6 +1540,136 @@
         "title": "Me",
         "type": "object"
       },
+      "MessageIn": {
+        "properties": {
+          "body": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Body",
+            "type": "string"
+          }
+        },
+        "required": [
+          "body"
+        ],
+        "title": "MessageIn",
+        "type": "object"
+      },
+      "MetroInfo": {
+        "properties": {
+          "metres": {
+            "title": "Metres",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "metres"
+        ],
+        "title": "MetroInfo",
+        "type": "object"
+      },
+      "NearbyPoi": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "location": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "title": "Location",
+            "type": "array"
+          },
+          "metres": {
+            "title": "Metres",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "kind",
+          "metres",
+          "location"
+        ],
+        "title": "NearbyPoi",
+        "type": "object"
+      },
+      "Notification": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "entity_id": {
+            "format": "uuid",
+            "title": "Entity Id",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "read": {
+            "title": "Read",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "entity_id",
+          "created_at",
+          "read"
+        ],
+        "title": "Notification",
+        "type": "object"
+      },
+      "Ok_ChatDetail_": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ChatDetail"
+          },
+          "success": {
+            "const": true,
+            "default": true,
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "Ok[ChatDetail]",
+        "type": "object"
+      },
       "Ok_ChatHistory_": {
         "properties": {
           "data": {
@@ -799,6 +1688,24 @@
         "title": "Ok[ChatHistory]",
         "type": "object"
       },
+      "Ok_EnquiryThread_": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/EnquiryThread"
+          },
+          "success": {
+            "const": true,
+            "default": true,
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "Ok[EnquiryThread]",
+        "type": "object"
+      },
       "Ok_Health_": {
         "properties": {
           "data": {
@@ -815,6 +1722,24 @@
           "data"
         ],
         "title": "Ok[Health]",
+        "type": "object"
+      },
+      "Ok_ListingDetail_": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ListingDetail"
+          },
+          "success": {
+            "const": true,
+            "default": true,
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "Ok[ListingDetail]",
         "type": "object"
       },
       "Ok_Listing_": {
@@ -925,6 +1850,24 @@
         "title": "Ok[RentSuggestion]",
         "type": "object"
       },
+      "Ok_SavedSearch_": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/SavedSearch"
+          },
+          "success": {
+            "const": true,
+            "default": true,
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "Ok[SavedSearch]",
+        "type": "object"
+      },
       "Ok_TurnResult_": {
         "properties": {
           "data": {
@@ -941,6 +1884,28 @@
           "data"
         ],
         "title": "Ok[TurnResult]",
+        "type": "object"
+      },
+      "Ok_list_ChatSummary__": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/ChatSummary"
+            },
+            "title": "Data",
+            "type": "array"
+          },
+          "success": {
+            "const": true,
+            "default": true,
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "Ok[list[ChatSummary]]",
         "type": "object"
       },
       "Ok_list_City__": {
@@ -963,6 +1928,50 @@
           "data"
         ],
         "title": "Ok[list[City]]",
+        "type": "object"
+      },
+      "Ok_list_EnquirySummary__": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/EnquirySummary"
+            },
+            "title": "Data",
+            "type": "array"
+          },
+          "success": {
+            "const": true,
+            "default": true,
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "Ok[list[EnquirySummary]]",
+        "type": "object"
+      },
+      "Ok_list_ListingCard__": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/ListingCard"
+            },
+            "title": "Data",
+            "type": "array"
+          },
+          "success": {
+            "const": true,
+            "default": true,
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "Ok[list[ListingCard]]",
         "type": "object"
       },
       "Ok_list_Listing__": {
@@ -1031,6 +2040,28 @@
         "title": "Ok[list[MapPin]]",
         "type": "object"
       },
+      "Ok_list_Notification__": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/Notification"
+            },
+            "title": "Data",
+            "type": "array"
+          },
+          "success": {
+            "const": true,
+            "default": true,
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "Ok[list[Notification]]",
+        "type": "object"
+      },
       "Ok_list_Photo__": {
         "properties": {
           "data": {
@@ -1073,6 +2104,28 @@
           "data"
         ],
         "title": "Ok[list[Poi]]",
+        "type": "object"
+      },
+      "Ok_list_SavedSearch__": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/SavedSearch"
+            },
+            "title": "Data",
+            "type": "array"
+          },
+          "success": {
+            "const": true,
+            "default": true,
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "title": "Ok[list[SavedSearch]]",
         "type": "object"
       },
       "PatchResult": {
@@ -1207,6 +2260,68 @@
           "thumb_bytes"
         ],
         "title": "PhotoUploadRequest",
+        "type": "object"
+      },
+      "PhotoUrls": {
+        "properties": {
+          "thumb_url": {
+            "title": "Thumb Url",
+            "type": "string"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "url",
+          "thumb_url"
+        ],
+        "title": "PhotoUrls",
+        "type": "object"
+      },
+      "Pin": {
+        "properties": {
+          "bhk": {
+            "title": "Bhk",
+            "type": "integer"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "locality": {
+            "title": "Locality",
+            "type": "string"
+          },
+          "location": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "title": "Location",
+            "type": "array"
+          },
+          "rent": {
+            "title": "Rent",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "location",
+          "rent",
+          "bhk",
+          "locality"
+        ],
+        "title": "Pin",
         "type": "object"
       },
       "Poi": {
@@ -1462,6 +2577,390 @@
         "title": "RentSuggestion",
         "type": "object"
       },
+      "SavedSearch": {
+        "properties": {
+          "chips": {
+            "items": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            "title": "Chips",
+            "type": "array"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "filters": {
+            "$ref": "#/components/schemas/SearchFilters"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "filters",
+          "chips",
+          "created_at"
+        ],
+        "title": "SavedSearch",
+        "type": "object"
+      },
+      "SavedSearchIn": {
+        "properties": {
+          "filters": {
+            "$ref": "#/components/schemas/SearchFilters"
+          },
+          "name": {
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "filters"
+        ],
+        "title": "SavedSearchIn",
+        "type": "object"
+      },
+      "SearchChatRequest": {
+        "properties": {
+          "bbox": {
+            "anyOf": [
+              {
+                "maxItems": 4,
+                "minItems": 4,
+                "prefixItems": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Search this map area (west, south, east, north)",
+            "title": "Bbox"
+          },
+          "chat_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Chat Id"
+          },
+          "filters": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SearchFilters"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Start a new chat from saved filters"
+          },
+          "message": {
+            "default": "",
+            "maxLength": 1000,
+            "title": "Message",
+            "type": "string"
+          },
+          "remove_filters": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Chips removed; no message needed",
+            "title": "Remove Filters"
+          }
+        },
+        "title": "SearchChatRequest",
+        "type": "object"
+      },
+      "SearchFilters": {
+        "additionalProperties": false,
+        "properties": {
+          "amenities": {
+            "items": {
+              "enum": [
+                "lift",
+                "power_backup",
+                "security",
+                "cctv",
+                "intercom",
+                "gym",
+                "pool",
+                "clubhouse",
+                "play_area",
+                "water_24x7",
+                "wifi",
+                "ac",
+                "geyser",
+                "washing_machine",
+                "fridge",
+                "modular_kitchen",
+                "balcony"
+              ],
+              "type": "string"
+            },
+            "title": "Amenities",
+            "type": "array"
+          },
+          "available_by": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Available By"
+          },
+          "bbox": {
+            "anyOf": [
+              {
+                "maxItems": 4,
+                "minItems": 4,
+                "prefixItems": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bbox"
+          },
+          "bhk": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Bhk",
+            "type": "array"
+          },
+          "city": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "City"
+          },
+          "commute": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Commute"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "deposit_max": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deposit Max"
+          },
+          "furnishing": {
+            "items": {
+              "enum": [
+                "unfurnished",
+                "semi",
+                "full"
+              ],
+              "type": "string"
+            },
+            "title": "Furnishing",
+            "type": "array"
+          },
+          "gated": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gated"
+          },
+          "locality_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Locality Ids",
+            "type": "array"
+          },
+          "locality_names": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Locality Names",
+            "type": "array"
+          },
+          "near_metro_m": {
+            "anyOf": [
+              {
+                "maximum": 5000.0,
+                "minimum": 200.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Near Metro M"
+          },
+          "no_brokerage": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "No Brokerage"
+          },
+          "parking": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parking"
+          },
+          "pets": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pets"
+          },
+          "rent_max": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rent Max"
+          },
+          "rent_min": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rent Min"
+          },
+          "semantic_query": {
+            "default": "",
+            "title": "Semantic Query",
+            "type": "string"
+          },
+          "soft": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Soft",
+            "type": "array"
+          },
+          "tenant_type": {
+            "anyOf": [
+              {
+                "enum": [
+                  "family",
+                  "bachelors"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tenant Type"
+          }
+        },
+        "title": "SearchFilters",
+        "type": "object"
+      },
       "SetField": {
         "properties": {
           "field": {
@@ -1662,6 +3161,268 @@
         "summary": "List Cities",
         "tags": [
           "reference"
+        ]
+      }
+    },
+    "/v1/enquiries/{enquiry_id}": {
+      "get": {
+        "operationId": "get_enquiry_v1_enquiries__enquiry_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "enquiry_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Enquiry Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok_EnquiryThread_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Enquiry",
+        "tags": [
+          "enquiries"
+        ]
+      }
+    },
+    "/v1/enquiries/{enquiry_id}/messages": {
+      "post": {
+        "operationId": "post_message_v1_enquiries__enquiry_id__messages_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "enquiry_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Enquiry Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MessageIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok_EnquiryThread_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Post Message",
+        "tags": [
+          "enquiries"
+        ]
+      }
+    },
+    "/v1/landlord/enquiries": {
+      "get": {
+        "operationId": "landlord_enquiries_v1_landlord_enquiries_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok_list_EnquirySummary__"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Landlord Enquiries",
+        "tags": [
+          "enquiries"
         ]
       }
     },
@@ -3257,6 +5018,126 @@
         ]
       }
     },
+    "/v1/listings/{listing_id}": {
+      "get": {
+        "operationId": "listing_detail_v1_listings__listing_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "listing_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Listing Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "poi_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Poi Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "mode",
+            "required": false,
+            "schema": {
+              "default": "car",
+              "enum": [
+                "car",
+                "two_wheeler",
+                "walk"
+              ],
+              "title": "Mode",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok_ListingDetail_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Listing Detail",
+        "tags": [
+          "tenant"
+        ]
+      }
+    },
     "/v1/localities": {
       "get": {
         "operationId": "list_localities_v1_localities_get",
@@ -3601,6 +5482,151 @@
         ]
       }
     },
+    "/v1/notifications": {
+      "get": {
+        "operationId": "notifications_v1_notifications_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok_list_Notification__"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Notifications",
+        "tags": [
+          "enquiries"
+        ]
+      }
+    },
+    "/v1/notifications/read": {
+      "post": {
+        "operationId": "mark_read_v1_notifications_read_post",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Mark Read",
+        "tags": [
+          "enquiries"
+        ]
+      }
+    },
     "/v1/pois": {
       "get": {
         "operationId": "list_pois_v1_pois_get",
@@ -3715,6 +5741,331 @@
         ]
       }
     },
+    "/v1/tenant/chats": {
+      "get": {
+        "operationId": "list_chats_v1_tenant_chats_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok_list_ChatSummary__"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Chats",
+        "tags": [
+          "tenant"
+        ]
+      }
+    },
+    "/v1/tenant/chats/{chat_id}": {
+      "get": {
+        "operationId": "get_chat_v1_tenant_chats__chat_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "chat_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Chat Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok_ChatDetail_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Chat",
+        "tags": [
+          "tenant"
+        ]
+      }
+    },
+    "/v1/tenant/enquiries": {
+      "get": {
+        "operationId": "tenant_enquiries_v1_tenant_enquiries_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok_list_EnquirySummary__"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Tenant Enquiries",
+        "tags": [
+          "enquiries"
+        ]
+      },
+      "post": {
+        "description": "Open an enquiry on a published listing, or add to the existing one.",
+        "operationId": "start_enquiry_v1_tenant_enquiries_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnquiryStart"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok_EnquiryThread_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Start Enquiry",
+        "tags": [
+          "enquiries"
+        ]
+      }
+    },
     "/v1/tenant/map/listings": {
       "get": {
         "operationId": "map_listings_v1_tenant_map_listings_get",
@@ -3797,6 +6148,568 @@
           }
         ],
         "summary": "Map Listings",
+        "tags": [
+          "tenant"
+        ]
+      }
+    },
+    "/v1/tenant/saved-searches": {
+      "get": {
+        "operationId": "list_saved_v1_tenant_saved_searches_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok_list_SavedSearch__"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Saved",
+        "tags": [
+          "tenant"
+        ]
+      },
+      "post": {
+        "operationId": "save_search_v1_tenant_saved_searches_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SavedSearchIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok_SavedSearch_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Save Search",
+        "tags": [
+          "tenant"
+        ]
+      }
+    },
+    "/v1/tenant/saved-searches/{saved_id}": {
+      "delete": {
+        "operationId": "delete_saved_v1_tenant_saved_searches__saved_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "saved_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Saved Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Delete Saved",
+        "tags": [
+          "tenant"
+        ]
+      }
+    },
+    "/v1/tenant/search/chat": {
+      "post": {
+        "operationId": "search_chat_v1_tenant_search_chat_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchChatRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              },
+              "text/event-stream": {}
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Search Chat",
+        "tags": [
+          "tenant"
+        ]
+      }
+    },
+    "/v1/tenant/shortlists": {
+      "get": {
+        "operationId": "list_shortlist_v1_tenant_shortlists_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok_list_ListingCard__"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Shortlist",
+        "tags": [
+          "tenant"
+        ]
+      }
+    },
+    "/v1/tenant/shortlists/{listing_id}": {
+      "delete": {
+        "operationId": "remove_shortlist_v1_tenant_shortlists__listing_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "listing_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Listing Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Remove Shortlist",
+        "tags": [
+          "tenant"
+        ]
+      },
+      "put": {
+        "operationId": "add_shortlist_v1_tenant_shortlists__listing_id__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "listing_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Listing Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Add Shortlist",
         "tags": [
           "tenant"
         ]

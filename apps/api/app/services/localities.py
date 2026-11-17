@@ -24,8 +24,9 @@ async def find(tx: Tx, name: str, city: str | None = None) -> LocalityMatch | No
         select id, name, city, extensions.similarity(lower(name), lower(%(q)s)) as sim
         from localities
         where (%(city)s::text is null or city = %(city)s)
-          and (lower(name) = lower(%(q)s) or extensions.similarity(lower(name), lower(%(q)s)) >= %(min)s)
-        order by lower(name) = lower(%(q)s) desc, sim desc
+          and (lower(name) = lower(%(q)s) or extensions.similarity(lower(name), lower(%(q)s)) >= %(min)s
+               or (length(%(q)s) >= 3 and lower(name) like lower(%(q)s) || ' %%'))
+        order by lower(name) = lower(%(q)s) desc, lower(name) like lower(%(q)s) || ' %%' desc, sim desc
         limit 1
         """,
         {"q": name.strip(), "city": city, "min": MIN_SIMILARITY},

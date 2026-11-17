@@ -41,6 +41,7 @@ class SignedUpload:
 class Storage(Protocol):
     async def signed_upload(self, path: str) -> SignedUpload: ...
     async def signed_download(self, path: str, expires_in: int = 86400) -> str: ...
+    async def signed_downloads(self, paths: list[str], expires_in: int = 3600) -> dict[str, str]: ...
     async def download(self, path: str) -> bytes: ...
     async def info(self, path: str) -> ObjectInfo: ...
     async def delete(self, path: str) -> None: ...
@@ -73,6 +74,17 @@ class SupabaseStorage:
         if r.status_code >= 400:
             raise StorageError(f"signed download URL failed: {r.status_code}")
         return f"{self.base}{r.json()['signedURL']}"
+
+    async def signed_downloads(self, paths: list[str], expires_in: int = 3600) -> dict[str, str]:
+        """Many signed URLs in one request; missing objects are left out."""
+        if not paths:
+            return {}
+        async with httpx.AsyncClient(timeout=15) as http:
+            r = await http.post(f"{self.base}/object/sign/{self.bucket}", headers=self.headers,
+                                json={"expiresIn": expires_in, "paths": paths})
+        if r.status_code >= 400:
+            raise StorageError(f"signed download URLs failed: {r.status_code}")
+        return {i["path"]: f"{self.base}{i['signedURL']}" for i in r.json() if i.get("signedURL")}
 
     async def download(self, path: str) -> bytes:
         async with httpx.AsyncClient(timeout=30) as http:
@@ -122,6 +134,9 @@ class MemoryStorage:
         if path not in self.objects:
             raise ObjectNotFound(path)
         return self._url(path)
+
+    async def signed_downloads(self, paths: list[str], expires_in: int = 3600) -> dict[str, str]:
+        return {p: self._url(p) for p in paths if p in self.objects}
 
     def put(self, path: str, data: bytes, content_type: str = "image/webp") -> None:
         self.objects[path] = data
