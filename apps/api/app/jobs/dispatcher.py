@@ -33,6 +33,7 @@ EVENTS: dict[str, str] = {
     "selftest": "selftest/requested",
     "embed-listing": "listing/changed",
     "embed-locality-notes": "locality_notes/changed",
+    "notify-enquiry": "enquiry/message_created",
 }
 # Runs that wait rather than work (they sleep until a deadline); none yet.
 WAITING_TYPES: tuple[str, ...] = ()

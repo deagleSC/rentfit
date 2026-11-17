@@ -2,10 +2,13 @@
 
 import { DashboardLayout, type DashboardLayoutProps } from "@rentfit/ui/blocks/dashboard-layout";
 import type { NavItem } from "@rentfit/ui/blocks/nav-main";
-import { Search, UserRound } from "lucide-react";
+import { Bookmark, Heart, MessageSquare, Search, UserRound } from "lucide-react";
 
 const nav: NavItem[] = [
   { title: "Search", url: "/", icon: Search },
+  { title: "Shortlist", url: "/shortlist", icon: Heart },
+  { title: "Saved searches", url: "/saved", icon: Bookmark },
+  { title: "Enquiries", url: "/enquiries", icon: MessageSquare },
   { title: "Account", url: "/account", icon: UserRound },
 ];
 

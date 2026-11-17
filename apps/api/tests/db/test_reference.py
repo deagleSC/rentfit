@@ -46,3 +46,12 @@ async def test_reference_endpoints(db, api) -> None:  # type: ignore[no-untyped-
 
 async def test_reference_requires_login(api) -> None:  # type: ignore[no-untyped-def]
     assert (await api.get("/v1/cities")).status_code == 401
+
+
+async def test_locality_prefix_match(db) -> None:  # type: ignore[no-untyped-def]
+    from app.core.db import Tx
+    from app.services import localities
+
+    await db.as_role({"role": "tenant", "sub": "00000000-0000-0000-0000-000000000001"})
+    m = await localities.find(Tx(db.conn), "HSR", "bangalore")
+    assert m is not None and m.name == "HSR Layout"

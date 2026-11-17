@@ -30,6 +30,12 @@ async def purge_rate_limits() -> int:
         return await ratelimit.purge_old(tx)
 
 
+async def purge_commute_cache() -> int:
+    async with transaction(system_claims()) as tx:
+        cur = await tx.conn.execute("delete from commute_cache where expires_at < now()")
+        return cur.rowcount
+
+
 async def resume_budget_deferred() -> int:
     claimed = await runs.claim_budget_deferred()
     for run in claimed:
@@ -47,4 +53,5 @@ async def housekeeping(ctx: inngest.Context) -> dict[str, int]:
     resent = await ctx.step.run("resend_stuck_runs", resend_stuck_runs)
     resumed = await ctx.step.run("resume_budget_deferred", resume_budget_deferred)
     purged = await ctx.step.run("purge_rate_limits", purge_rate_limits)
-    return {"resent": resent, "resumed": resumed, "rate_limit_rows_purged": purged}
+    commutes = await ctx.step.run("purge_commute_cache", purge_commute_cache)
+    return {"resent": resent, "resumed": resumed, "rate_limit_rows_purged": purged, "commute_rows_purged": commutes}

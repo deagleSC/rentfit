@@ -11,11 +11,13 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from app.api.routers import dev_storage, me, reference
+from app.api.routers import dev_storage, enquiries, me, reference
 from app.api.routers.landlord import chat as landlord_chat
 from app.api.routers.landlord import listings as landlord_listings
 from app.api.routers.landlord import photos as landlord_photos
+from app.api.routers.tenant import homes as tenant_homes
 from app.api.routers.tenant import map as tenant_map
+from app.api.routers.tenant import search as tenant_search
 from app.core import monitoring
 from app.core.config import get_settings
 from app.core.db import close_pool
@@ -66,6 +68,9 @@ def create_app() -> FastAPI:
     app.include_router(landlord_photos.router)
     app.include_router(landlord_chat.router)
     app.include_router(tenant_map.router)
+    app.include_router(tenant_search.router)
+    app.include_router(tenant_homes.router)
+    app.include_router(enquiries.router)
     if settings.is_dev and not settings.supabase_service_key:
         app.include_router(dev_storage.router)
 

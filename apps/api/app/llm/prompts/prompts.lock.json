@@ -3,6 +3,14 @@
     "version": 2,
     "hash": "4d6fce69f70f17d9"
   },
+  "search_parse": {
+    "version": 1,
+    "hash": "0823f68c81c691e9"
+  },
+  "search_respond": {
+    "version": 1,
+    "hash": "37e901a803ad2c2f"
+  },
   "smoke_extract": {
     "version": 1,
     "hash": "19f946d934b8ac13"
