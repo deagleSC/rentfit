@@ -15,15 +15,13 @@ from app.agents import search_agent
 from app.core.db import system_claims, transaction
 from app.domain.filters import SearchFilters
 from app.llm.prompts import PROMPTS
-from app.pipeline import citations, hybrid
+from app.pipeline import citations
 from app.services import search_results as res
-from app.services.embeddings import get_embedder
 from evals.common import Timer, load, write_report
 from evals.run_search import parse
 
 
 async def answers() -> None:
-    embedder = get_embedder()
     cases: list[dict[str, Any]] = []
     total = dropped = cited = kept = 0
     real_check = citations.check
@@ -43,12 +41,13 @@ async def answers() -> None:
         _, f, _ = await parse(q, SearchFilters())
         with Timer() as t:
             try:
-                async with transaction(system_claims()) as tx:
-                    hits = await hybrid.search(tx, f, embedder)
-                    ids = [h.id for h in hits][:8]
+                async with transaction(system_claims()) as tx:  # the agent's own search → relax → rank
+                    found = await search_agent.find(tx, f, [])
+                    hits = found.hits
+                    ids = found.ranked[:search_agent.CARDS]
                     rows = await res.card_rows(tx, ids)
-                    shown = await res.cards(tx, ids, {}, rows)
-                    reply = await search_agent.respond(tx, emit, q, f, [], len(hits), shown,
+                    shown = await res.cards(tx, ids, found.commutes, rows)
+                    reply = await search_agent.respond(tx, emit, q, found.searched, found.relaxed, len(hits), shown,
                                                        {i: r["description"] or "" for i, r in rows.items()})
             except Exception as exc:  # noqa: BLE001
                 print("  failed:", type(exc).__name__, str(exc)[:120])

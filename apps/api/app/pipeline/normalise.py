@@ -9,9 +9,9 @@ from __future__ import annotations
 import re
 from typing import Any
 
-_AMOUNT = r"(\d+(?:\.\d+)?)\s*(k|thousand|l|lac|lakh|lakhs|cr)?\b"
-_MULT = {None: 1, "k": 1_000, "thousand": 1_000, "l": 100_000, "lac": 100_000, "lakh": 100_000,
-         "lakhs": 100_000, "cr": 10_000_000}
+_AMOUNT = r"(\d+(?:\.\d+)?)\s*(k|thousand|hazaar|hazar|hajar|l|lac|lakh|lakhs|cr)?\b"
+_MULT = {None: 1, "k": 1_000, "thousand": 1_000, "hazaar": 1_000, "hazar": 1_000, "hajar": 1_000,
+         "l": 100_000, "lac": 100_000, "lakh": 100_000, "lakhs": 100_000, "cr": 10_000_000}
 
 
 def amount(num: str, unit: str | None) -> int:
@@ -33,14 +33,34 @@ FURNISHING = {"unfurnished": "unfurnished", "un-furnished": "unfurnished", "bare
               "fully furnished": "full", "full furnished": "full", "furnished": "full", "full": "full"}
 
 
+_NOT_RENT = re.compile(r"\s*(?:months?|mahine|maintenance|sq|bhk)", re.I)  # "rent, 6 months"
+
+
+def _rent(t: str) -> int | None:
+    """'22k rent' or 'rent 22k' / 'rent is ₹22,000', never the deposit that follows 'rent'."""
+    before = re.search(r"(?:rs\.?|₹|inr)?\s*" + _AMOUNT
+                       + r"\s*(?:rs\.?\s*)?(?:rent|kiraya|per month|/month|pm|a month)\b", t)
+    if before and before.group(1):
+        v = amount(before.group(1), before.group(2))
+        if v >= 1000:
+            return v
+    for m in re.finditer(r"(?:rent|rental|kiraya)\s*(?:is|of|:)?\s*(?:rs\.?|₹|inr)?\s*" + _AMOUNT, t):
+        if _NOT_RENT.match(t, m.end()):
+            continue
+        v = amount(m.group(1), m.group(2))
+        if v >= 1000:
+            return v
+    return None
+
+
 def heuristic_extract(message: str) -> dict[str, Any]:
     """Pattern extraction for the fake model. Deliberately simple; the real model does the rest."""
     t = message.lower().replace(",", "")
     out: dict[str, Any] = {}
     if m := re.search(r"(\d)\s*-?\s*bhk", t):
         out["bhk"] = int(m.group(1))
-    if m := re.search(r"(?:rent|rental|for)\s*(?:is|of|:)?\s*(?:rs\.?|₹|inr)?\s*" + _AMOUNT, t):
-        out["rent"] = amount(m.group(1), m.group(2))
+    if (rent := _rent(t)) is not None:
+        out["rent"] = rent
     months = r"(\d+(?:\.\d+)?)\s*months?\s*(?:deposit|advance)|deposit\s*(?:of|is|:)?\s*(\d+(?:\.\d+)?)\s*months?"
     if m := re.search(months, t):
         out["deposit_months"] = float(m.group(1) or m.group(2))

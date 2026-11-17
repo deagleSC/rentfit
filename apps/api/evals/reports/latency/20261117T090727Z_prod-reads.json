@@ -1,0 +1,28 @@
+{
+ "eval": "latency",
+ "version": "prod-reads",
+ "at": "20261117T090727Z",
+ "metrics": {
+  "health_p50_s": 0.08,
+  "cities_p50_s": 0.08,
+  "map_listings_p50_s": 0.09,
+  "listing_detail_p50_s": 0.16,
+  "health_p95_s": 0.12,
+  "cities_p95_s": 0.1,
+  "map_listings_p95_s": 0.1,
+  "listing_detail_p95_s": 0.44
+ },
+ "target": {
+  "map_listings_p95_s": "<=1.0"
+ },
+ "met": {
+  "map_listings_p95_s": true
+ },
+ "models": [
+  "google/gemma-4-26b-a4b-it",
+  "google/gemma-4-31b-it"
+ ],
+ "provider": "fake",
+ "api": "https://rentfit-api.vercel.app",
+ "cases": []
+}

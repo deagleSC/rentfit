@@ -8,10 +8,11 @@
 
 from __future__ import annotations
 
+import re
 from datetime import date
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 from app.domain.filters import SearchUpdate
 from app.llm.prompts import UNTRUSTED_RULE, Prompt, register, untrusted
@@ -99,9 +100,26 @@ class RespondInput(BaseModel):
     question: str | None = None  # set for ask_about_result
 
 
+_REFS = re.compile(r"\b[LN]\d+\b")
+
+
 class Claim(BaseModel):
     text: str = Field(description="One short sentence")
     cites: list[str] = Field(description="Refs this sentence relies on, e.g. ['L1'] or ['L2', 'N1']")
+
+    @model_validator(mode="before")
+    @classmethod
+    def _lenient(cls, v: object) -> object:
+        """A small model sometimes writes a claim as a bare string "… ₹28,000 (L2)." or {"claim": …}.
+        Read the refs from the text; the citation check still drops anything unsupported."""
+        if isinstance(v, str):
+            return {"text": v, "cites": list(dict.fromkeys(_REFS.findall(v)))}
+        if isinstance(v, dict) and "text" not in v:
+            text = next((v[k] for k in ("claim", "sentence", "statement") if isinstance(v.get(k), str)), None)
+            if text is not None:
+                cites = v.get("cites") or v.get("refs") or v.get("citations") or _REFS.findall(text)
+                return {"text": text, "cites": list(dict.fromkeys(cites))}
+        return v
 
 
 class RespondOutput(BaseModel):

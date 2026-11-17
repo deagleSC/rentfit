@@ -1,6 +1,9 @@
 """Latency on the deployed API (backend plan §15.2), real model.
 
-    uv run python -m evals.run_latency [https://rentfit-api.vercel.app]
+    uv run python -m evals.run_latency [https://rentfit-api.vercel.app] [--reads-only]
+
+Turns are spaced PACE_S apart: the API allows 10 request-path model calls a minute across all users
+(the free tier), and back-to-back turns would measure that limit instead of latency.
 
 Signs in as the e2e tenant, times reference/map/detail endpoints (no model), then a set of fresh
 search turns (each a new budget, so nothing is served from the model cache): time to the first
@@ -21,11 +24,16 @@ import httpx
 from evals.common import write_report
 from scripts.seed import _dotenv
 
-API = sys.argv[1] if len(sys.argv) > 1 else "https://rentfit-api.vercel.app"
+ARGS = [a for a in sys.argv[1:] if not a.startswith("--")]
+API = ARGS[0] if ARGS else "https://rentfit-api.vercel.app"
+READS_ONLY = "--reads-only" in sys.argv  # no model calls (e.g. when the day's model budget is spent)
 QUERIES = ["2 BHK in Koramangala under {k}k", "1bhk for bachelors in HSR Layout below {k}k",
            "family flat in Powai, 3 bedrooms, budget {k}k", "Andheri West 1 BHK furnished under {k}k",
            "semi furnished 2bhk in Whitefield under {k}k with a gym",
            "Bengaluru mein 2 bhk {k} hazaar tak metro ke paas"]
+
+
+PACE_S = 15
 
 
 def pct(xs: list[float], p: float) -> float:
@@ -83,11 +91,17 @@ async def main() -> None:
             "map_listings": await timed_get(client, "/v1/tenant/map/listings?city=bangalore", 20),
             "listing_detail": await timed_get(client, f"/v1/listings/{listing}", 20),
         }
-        stamp = int(time.time()) % 7  # a different budget per run keeps the model cache cold
-        turns = []
-        for i, q in enumerate(QUERIES * 2):
-            msg = q.format(k=31 + stamp + i * 2)
-            turns.append(await search_turn(client, msg))
+        stamp = int(time.time())
+        turns: list[dict[str, Any]] = []
+        for i, q in enumerate([] if READS_ONLY else QUERIES * 2):
+            msg = q.format(k=30 + (stamp // 7 + i * 13) % 60)  # a fresh budget per turn keeps the cache cold
+            if i:
+                await asyncio.sleep(PACE_S)  # stay under the request-path model cap (10 calls/min, 2 per turn)
+            try:
+                turns.append(await search_turn(client, msg))
+            except httpx.HTTPError as exc:  # a dropped stream counts as a failed turn, not a crashed eval
+                turns.append({"message": msg, "first_event_s": None, "cards_s": None, "done_s": None,
+                              "chat_id": None, "error": f"{type(exc).__name__}: {exc}"})
             err = turns[-1]["error"]
             print(f"{turns[-1]['done_s']}s  {msg}" + (f"  ERROR {err[:120]}" if err else ""))
     from app.core.db import close_pool, system_claims, transaction
@@ -100,11 +114,16 @@ async def main() -> None:
         await tx.conn.execute("delete from chats where id = any(%s)", (ids,))
     await close_pool()
     ok = [t for t in turns if t["done_s"]]
+    if READS_ONLY:
+        metrics_r: dict[str, Any] = {f"{k}_p50_s": pct(v, 0.5) for k, v in reads.items()}
+        metrics_r |= {f"{k}_p95_s": pct(v, 0.95) for k, v in reads.items()}
+        write_report("latency", "prod-reads", metrics_r, {"map_listings_p95_s": "<=1.0"}, [], {"api": API})
+        return
     done = [t["done_s"] for t in ok]
     metrics: dict[str, Any] = {f"{k}_p50_s": pct(v, 0.5) for k, v in reads.items()}
     metrics |= {f"{k}_p95_s": pct(v, 0.95) for k, v in reads.items()}
-    metrics |= {"search_first_event_p50_s": round(median(t["first_event_s"] for t in ok), 2),
-                "search_cards_p50_s": round(median(t["cards_s"] for t in ok if t["cards_s"]), 2),
+    metrics |= {"search_first_event_p50_s": round(median(t["first_event_s"] for t in ok), 2) if ok else None,
+                "search_cards_p50_s": round(median(t["cards_s"] for t in ok if t["cards_s"]), 2) if ok else None,
                 "search_done_p50_s": pct(done, 0.5), "search_done_p95_s": pct(done, 0.95),
                 "search_turns": len(turns), "search_errors": len(turns) - len(ok)}
     write_report("latency", "prod", metrics, {"search_done_p95_s": "<=15", "map_listings_p95_s": "<=1.0"},

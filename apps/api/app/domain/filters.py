@@ -92,12 +92,25 @@ class SearchUpdate(BaseModel):
     question: str | None = Field(default=None, description="For ask_about_result: what they want to know")
     semantic_query: str = Field(default="", description="The descriptive part of the request, for text search")
 
+    @field_validator("tenant_type", "commute_mode", "commute_to", "city", mode="before")
+    @classmethod
+    def _blank(cls, v: object) -> object:  # "" means not said
+        return None if isinstance(v, str) and not v.strip() else v
+
+    @field_validator("pets", "parking", "gated", "no_brokerage", "near_metro", mode="before")
+    @classmethod
+    def _yes(cls, v: object) -> object:  # "dog", "car" → yes; "no", "" → not said / no
+        if isinstance(v, str):
+            t = v.strip().lower()
+            return None if not t else t not in ("no", "false", "none", "not allowed")
+        return v
+
     @field_validator("city", mode="before")
     @classmethod
     def _city(cls, v: object) -> object:  # "Mumbai" / "Bengaluru" → the slug, instead of a retry
         from app.llm.prompts.listing import CITY_ALIASES
 
-        return CITY_ALIASES.get(v.strip().lower(), v) if isinstance(v, str) else v
+        return CITY_ALIASES.get(v.strip().lower()) if isinstance(v, str) else v  # a city we don't cover → unset
 
 
 # ------------------------------------------------------------------ slang (code, not the model)
@@ -110,8 +123,28 @@ NEAR_METRO = re.compile(
 )
 
 
+ANY_AREA = re.compile(r"\b(any area|anywhere|any locality|koi bhi (?:area|jagah))\b", re.I)
+
+
 def apply_slang(message: str, upd: SearchUpdate, prev: SearchFilters) -> SearchUpdate:
+    from app.pipeline.query_heuristics import heuristic_search
+
     u = upd.model_copy(deep=True)
+    if ANY_AREA.search(message) and "locality_ids" not in u.clear:
+        u.clear.append("locality_ids")
+    u.clear = ["locality_ids" if c in ("locality_names", "localities", "locality") else c for c in u.clear]
+    found = heuristic_search(message)
+    if u.intent == "ask_about_result" and u.result_number is None:  # "the 2nd one" read in code too
+        u.result_number = found.get("result_number")
+    if u.intent == "search":  # fields the model left empty but the message plainly states
+        for name in ("bhk", "rent_max", "rent_min", "tenant_type", "pets", "parking", "gated", "no_brokerage"):
+            if found.get(name) not in (None, []) and getattr(u, name) in (None, []):
+                setattr(u, name, found[name])
+    if u.intent == "search" and not u.locality_names and found.get("locality_names"):  # "what about X instead"
+        u.locality_names = found["locality_names"]
+        u.replace_localities = u.replace_localities or bool(found.get("replace_localities"))
+        if u.replace_localities and "locality_ids" in u.clear:
+            u.clear.remove("locality_ids")
     if CHEAPER.search(message) and u.rent_max is None and prev.rent_max:
         u.rent_max = int(round(prev.rent_max * 0.9, -2))
     if PRICIER.search(message) and u.rent_max is None and prev.rent_max:

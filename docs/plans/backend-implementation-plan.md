@@ -381,6 +381,18 @@ parse_query ─▶ [clarify] ─▶ search ─▶ [relax] ─▶ enrich ─▶ r
 
 Each runner writes `reports/<eval>/<timestamp>_<prompt_version>.json`; `readme_results.py` renders the README table from the latest report per eval.
 
+**As built (Phase 4):**
+- Datasets: 30 extraction, 20 edits, 60 parsing, 30 retrieval, 15 answers. These are scaled down so a run fits the 300-call daily cap.
+- The retrieval eval scores relevance against structured data (no model), on the 100 seeded listings, and has no scratch DB.
+- The evals found real problems, now fixed:
+  - the model drops values it saw; the fix is a pattern backfill that only fills empty fields
+  - near-miss enum values cost retries
+  - degenerate outputs ran to 133k characters; `max_tokens` is now 1200
+  - claims written as strings were lost
+  - the pattern extractor's rent picked up the deposit
+- Fixes were made while looking at the same cases, so the scores are optimistic until a held-out set runs.
+- Search latency on the deployed API was not measured. The day's budget ran out, and the request-path cap (10/min, shared by all users) limits throughput to about 5 turns/min.
+
 ---
 
 ## 16. Deployment

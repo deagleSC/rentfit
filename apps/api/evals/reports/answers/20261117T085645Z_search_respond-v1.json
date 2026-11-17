@@ -1,0 +1,570 @@
+{
+ "eval": "answers",
+ "version": "search_respond-v1",
+ "at": "20261117T085645Z",
+ "metrics": {
+  "unsupported_claim_rate": 0.0,
+  "cited_share": 1.0,
+  "claims": 35,
+  "cases": 15
+ },
+ "target": {
+  "unsupported_claim_rate": "<=0.02",
+  "cited_share": ">=0.90"
+ },
+ "met": {
+  "unsupported_claim_rate": true,
+  "cited_share": true
+ },
+ "models": [
+  "google/gemma-4-26b-a4b-it",
+  "google/gemma-4-31b-it"
+ ],
+ "provider": "openrouter",
+ "cases": [
+  {
+   "q": "2 BHK in Koramangala under 45k",
+   "results": 3,
+   "intro": "I found a few 2 BHK options in areas near Koramangala that fit your budget.",
+   "claims": [
+    {
+     "text": "In Ejipura, you can find a corner 2 BHK for ₹30,000 with amenities like a pool and power backup, though it requires a higher deposit of ₹1,50,000. This area is close to office hubs like Embassy Golf Lines (1.5 km).",
+     "refs": [
+      {
+       "kind": "listing",
+       "id": "89d0551e-55d2-4383-a698-e2d325e2d1df",
+       "label": "2 BHK, Ejipura"
+      },
+      {
+       "kind": "note",
+       "id": "27",
+       "label": "About Ejipura",
+       "text": "Ejipura is a locality in Bengaluru. The nearest metro station is Central Silk Board, about 3.3 km from the centre of the area. OpenStreetMap lists 19 schools, 3 hospitals, 7 parks and 2 supermarkets within the area. Office hubs within 5 km: Infomart Tech Park (1.2 km), Embassy Golf Links (1.5 km), Enzyme Tech Park (2.1 km). Source: OpenStreetMap contributors."
+      }
+     ]
+    },
+    {
+     "text": "For a more budget-friendly option, there is a semi-furnished 2 BHK in Austin Town for ₹28,000 with a lower deposit of ₹84,000. It is located near Trinity metro (1.7 km) and offers proximity to Novel Business Park (1.3 km).",
+     "refs": [
+      {
+       "kind": "listing",
+       "id": "6a542d28-7bbd-4ea6-aa3a-87cfc6467d73",
+       "label": "2 BHK, Austin Town"
+      },
+      {
+       "kind": "note",
+       "id": "3",
+       "label": "About Austin Town",
+       "text": "Austin Town is a locality in Bengaluru. The nearest metro station is Trinity, about 1.3 km from the centre of the area. OpenStreetMap lists 43 schools, 12 hospitals, 13 parks and 6 supermarkets within the area. Office hubs within 5 km: Novel Business Park (1.3 km), Global Tech Park (1.7 km), Bagmane (2.3 km). Source: OpenStreetMap contributors."
+      }
+     ]
+    },
+    {
+     "text": "Wilson Garden offers the lowest rent at ₹24,500 for a semi-furnished 2 BHK, which is also open to bachelors. It is conveniently located near Suddaguntepalya metro (1.3 km).",
+     "refs": [
+      {
+       "kind": "listing",
+       "id": "f9f2d8b4-7e30-4021-a4b3-d5840b4969b4",
+       "label": "2 BHK, Wilson Garden"
+      }
+     ]
+    }
+   ],
+   "dropped": [],
+   "seconds": 7.5
+  },
+  {
+   "q": "1bhk for bachelors in HSR Layout below 25k",
+   "results": 1,
+   "intro": "I found a budget-friendly 1 BHK option in the nearby Kudlu area that accommodates bachelors.",
+   "claims": [
+    {
+     "text": "The available 1 BHK in Kudlu is priced at ₹16,000 with a deposit of ₹64,000.",
+     "refs": [
+      {
+       "kind": "listing",
+       "id": "f5f0c166-5158-4777-bb5b-471290d9c57f",
+       "label": "1 BHK, Kudlu"
+      }
+     ]
+    },
+    {
+     "text": "This semi-furnished unit is bachelor-friendly and includes amenities like a clubhouse, geyser, intercom, play area, and power backup.",
+     "refs": [
+      {
+       "kind": "listing",
+       "id": "f5f0c166-5158-4777-bb5b-471290d9c57f",
+       "label": "1 BHK, Kudlu"
+      }
+     ]
+    },
+    {
+     "text": "While this fits your budget, it is located in Kudlu rather than HSR Layout, though it is near Singasandra metro (93 m) and office hubs like AKR Tech Park (1.5 km).",
+     "refs": [
+      {
+       "kind": "listing",
+       "id": "f5f0c166-5158-4777-bb5b-471290d9c57f",
+       "label": "1 BHK, Kudlu"
+      },
+      {
+       "kind": "note",
+       "id": "65",
+       "label": "About Kudlu",
+       "text": "Kudlu is a locality in Bengaluru. The nearest metro station is Singasandra, about 1.5 km from the centre of the area. OpenStreetMap lists 23 schools, 9 hospitals, 17 parks and 5 supermarkets within the area. Office hubs within 5 km: AKR Tech Park (1.5 km), AMR Tech Park (2.9 km), Vaishnavi Tech Park (3.9 km). Source: OpenStreetMap contributors."
+      }
+     ]
+    }
+   ],
+   "dropped": [],
+   "seconds": 4.74
+  },
+  {
+   "q": "family flat in Powai, 3 bedrooms, budget 1.2 lakh",
+   "results": 1,
+   "intro": "I found a spacious 3 BHK option in the MIDC area that fits your family requirements.",
+   "claims": [
+    {
+     "text": "The available 3 BHK in MIDC is well within your budget at ₹70,500 per month.",
+     "refs": [
+      {
+       "kind": "listing",
+       "id": "e9fea8d8-89e1-4174-b16b-e54753bde81b",
+       "label": "3 BHK, MIDC"
+      }
+     ]
+    },
+    {
+     "text": "This unfurnished flat is ideal for families and includes amenities like a modular kitchen, fridge, washing machine, and lift.",
+     "refs": [
+      {
+       "kind": "listing",
+       "id": "e9fea8d8-89e1-4174-b16b-e54753bde81b",
+       "label": "3 BHK, MIDC"
+      }
+     ]
+    },
+    {
+     "text": "While the rent is lower than your limit, please note the deposit is ₹2,11,500.",
+     "refs": [
+      {
+       "kind": "listing",
+       "id": "e9fea8d8-89e1-4174-b16b-e54753bde81b",
+       "label": "3 BHK, MIDC"
+      }
+     ]
+    },
+    {
+     "text": "The area is highly connected with the MIDC - Andheri metro just 777 m away and several office hubs like Technopolis Knowledge Park within 5 km.",
+     "refs": [
+      {
+       "kind": "listing",
+       "id": "e9fea8d8-89e1-4174-b16b-e54753bde81b",
+       "label": "3 BHK, MIDC"
+      },
+      {
+       "kind": "note",
+       "id": "191",
+       "label": "About MIDC",
+       "text": "MIDC is a locality in Mumbai. The nearest metro station is MIDC - Andheri, about 1.0 km from the centre of the area. Andheri railway station is about 1.9 km away. OpenStreetMap lists 6 schools, 20 hospitals, 23 parks and 2 supermarkets within the area. Office hubs within 5 km: Technopolis Knowledge Park (478 m), SEEPZ (1.3 km), Leela Business Park (1.4 km). Source: OpenStreetMap contributors."
+      }
+     ]
+    }
+   ],
+   "dropped": [],
+   "seconds": 5.02
+  },
+  {
+   "q": "Bengaluru mein 2 bhk chahiye 35 hazaar tak, metro ke paas",
+   "results": 9,
+   "intro": "Mujhe aapke liye Bengaluru mein metro ke paas kuch acche 2 BHK options mile hain.",
+   "claims": [
+    {
+     "text": "Shivajinagar mein Cubbon Park metro sirf 224 m door hai, aur yeh fully furnished 2 BHK ₹28,000 rent par available hai.",
+     "refs": [
+      {
+       "kind": "listing",
+       "id": "3d05f90b-c898-434e-a87e-ee6e0555ce27",
+       "label": "2 BHK, Shivajinagar"
+      }
+     ]
+    },
+    {
+     "text": "Baiyyappanahalli mein ₹23,500 rent wala fully furnished option hai jo Baiyappanahalli metro se 783 m door hai.",
+     "refs": [
+      {
+       "kind": "listing",
+       "id": "26533fe0-0513-4bf1-9eb8-1c7b08d124c6",
+       "label": "2 BHK, Baiyyappanahalli"
+      }
+     ]
+    },
+    {
+     "text": "JP Nagar mein ₹21,000 rent wala semi-furnished flat hai jo Bilekahalli IIM-B metro ke 369 m paas hai, par iska deposit ₹2,10,000 hai.",
+     "refs": [
+      {
+       "kind": "listing",
+       "id": "1125d927-6b2b-455b-89a3-b901982dc769",
+       "label": "2 BHK, JP Nagar"
+      }
+     ]
+    },
+    {
+     "text": "Kothnur mein ₹21,500 rent par semi-furnished flat hai jo Kalena Agrahara metro se 632 m door hai.",
+     "refs": [
+      {
+       "kind": "listing",
+       "id": "70e6263f-9988-4e12-84ca-1d3c2e2e729a",
+       "label": "2 BHK, Kothnur"
+      }
+     ]
+    }
+   ],
+   "dropped": [],
+   "seconds": 5.4
+  },
+  {
+   "q": "semi furnished flat in Whitefield with a gym, under 40k",
+   "results": 3,
+   "intro": "I found a few semi-furnished options in the Whitefield area that match your requirements.",
+   "claims": [
+    {
+     "text": "The 3 BHK in Pattanduru Agrahara is a great fit as it includes a gym and is only 1.4 km from Nallurahalli metro.",
+     "refs": [
+      {
+       "kind": "listing",
+       "id": "58b6f44b-477b-421a-ab0d-f2e1671643b7",
+       "label": "3 BHK, Pattanduru Agrahara"
+      }
+     ]
+    },
+    {
+     "text": "If you prefer a lower rent, there is a 2 BHK in Balagere for ₹23,500, though it is 3.7 km from Nallurahalli metro.",
+     "refs": [
+      {
+       "kind": "listing",
+       "id": "ff2c17bf-aa05-491e-b869-1828a79a9db5",
+       "label": "2 BHK, Balagere"
+      }
+     ]
+    },
+    {
+     "text": "Pattanduru Agrahara offers excellent connectivity with the Sri Sathya Sai Hospital metro station just 706 m away and several office hubs like JP Tech Park within 5 km.",
+     "refs": [
+      {
+       "kind": "listing",
+       "id": "58b6f44b-477b-421a-ab0d-f2e1671643b7",
+       "label": "3 BHK, Pattanduru Agrahara"
+      },
+      {
+       "kind": "listing",
+       "id": "919a463e-263b-4f04-ad4c-ccda5b871984",
+       "label": "2 BHK, Pattanduru Agrahara"
+      },
+      {
+       "kind": "note",
+       "id": "80",
+       "label": "About Pattanduru Agrahara",
+       "text": "Pattanduru Agrahara is a locality in Bengaluru. The nearest metro station is Sri Sathya Sai Hospital, about 706 m from the centre of the area. OpenStreetMap lists 4 schools, 7 hospitals, 14 parks and 6 supermarkets within the area. Office hubs within 5 km: JP Tech Park (554 m), ITPB (768 m), V K Tech Park (1.5 km). Source: OpenStreetMap contributors."
+      }
+     ]
+    },
+    {
+     "text": "Please note that these options require a higher deposit ranging from ₹1,40,000 to ₹1,47,000.",
+     "refs": [
+      {
+       "kind": "listing",
+       "id": "ff2c17bf-aa05-491e-b869-1828a79a9db5",
+       "label": "2 BHK, Balagere"
+      },
+      {
+       "kind": "listing",
+       "id": "58b6f44b-477b-421a-ab0d-f2e1671643b7",
+       "label": "3 BHK, Pattanduru Agrahara"
+      },
+      {
+       "kind": "listing",
+       "id": "919a463e-263b-4f04-ad4c-ccda5b871984",
+       "label": "2 BHK, Pattanduru Agrahara"
+      }
+     ]
+    }
+   ],
+   "dropped": [],
+   "seconds": 10.39
+  },
+  {
+   "q": "Andheri West 1 BHK fully furnished under 60k",
+   "results": 0,
+   "intro": "I couldn't find any fully furnished 1 BHK apartments in Andheri West within your budget.",
+   "claims": [],
+   "dropped": [],
+   "seconds": 2.58
+  },
+  {
+   "q": "pet friendly 2bhk in Bandra",
+   "results": 0,
+   "intro": "I couldn't find any pet-friendly 2BHK listings in Bandra based on your current search.",
+   "claims": [],
+   "dropped": [],
+   "seconds": 2.8
+  },
+  {
+   "q": "gated society 2bhk in Thane under 40k",
+   "results": 11,
+   "intro": "I found several 2 BHK options in gated societies that match your budget.",
+   "claims": [
+    {
+     "text": "In Baiyyappanahalli, you can find a semi-furnished 2 BHK with amenities like a pool, CCTV, and security for ₹29,500, which is very close to the Baiyappanahalli metro at 469 m.",
+     "refs": [
+      {
+       "kind": "listing",
+       "id": "f6c2e1b4-ab75-4f1e-84b1-a93a190c8153",
+       "label": "2 BHK, Baiyyappanahalli"
+      }
+     ]
+    },
+    {
+     "text": "Another option in Baiyyappanahalli is a fully furnished 2 BHK for ₹23,500 that is within 783 m of the metro.",
+     "refs": [
+      {
+       "kind": "listing",
+       "id": "26533fe0-0513-4bf1-9eb8-1c7b08d124c6",
+       "label": "2 BHK, Baiyyappanahalli"
+      }
+     ]
+    },
+    {
+     "text": "If you prefer C V Raman Nagar, there is a semi-furnished 2 BHK for ₹25,000 located 975 m from the Baiyappanahalli metro.",
+     "refs": [
+      {
+       "kind": "listing",
+       "id": "6a81b9af-a5fd-4899-a484-54d9418b89a0",
+       "label": "2 BHK, C V Raman Nagar"
+      }
+     ]
+    },
+    {
+     "text": "While these options fit your budget, please note that some listings like and require a higher deposit of up to ₹1,47,500.",
+     "refs": [
+      {
+       "kind": "listing",
+       "id": "f6c2e1b4-ab75-4f1e-84b1-a93a190c8153",
+       "label": "2 BHK, Baiyyappanahalli"
+      },
+      {
+       "kind": "listing",
+       "id": "26533fe0-0513-4bf1-9eb8-1c7b08d124c6",
+       "label": "2 BHK, Baiyyappanahalli"
+      }
+     ]
+    }
+   ],
+   "dropped": [],
+   "seconds": 28.65
+  },
+  {
+   "q": "3 bhk in Jayanagar with car parking",
+   "results": 0,
+   "intro": "I couldn't find any 3 BHK listings with car parking in Jayanagar at the moment.",
+   "claims": [],
+   "dropped": [],
+   "seconds": 2.05
+  },
+  {
+   "q": "quiet flat with balcony in Malleswaram under 45k",
+   "results": 1,
+   "intro": "I found a quiet option in Vasanth Nagar that fits within your budget.",
+   "claims": [
+    {
+     "text": "The available 1 BHK in Vasanth Nagar is located in a quiet lane and is priced at ₹12,000.",
+     "refs": [
+      {
+       "kind": "listing",
+       "id": "2fdf201b-6da8-403e-97d3-11b6f1525db7",
+       "label": "1 BHK, Vasanth Nagar"
+      }
+     ]
+    },
+    {
+     "text": "While this fits your budget, please note the deposit is ₹96,000.",
+     "refs": [
+      {
+       "kind": "listing",
+       "id": "2fdf201b-6da8-403e-97d3-11b6f1525db7",
+       "label": "1 BHK, Vasanth Nagar"
+      }
+     ]
+    },
+    {
+     "text": "The property is 1.2 km from Mantri Square Sampige Road metro and the area features 16 parks and 13 hospitals.",
+     "refs": [
+      {
+       "kind": "listing",
+       "id": "2fdf201b-6da8-403e-97d3-11b6f1525db7",
+       "label": "1 BHK, Vasanth Nagar"
+      },
+      {
+       "kind": "note",
+       "id": "99",
+       "label": "About Vasanth Nagar",
+       "text": "Vasanth Nagar is a locality in Bengaluru. The nearest metro station is Cubbon Park, about 1.4 km from the centre of the area. Bangalore Cantonment railway station is about 729 m away. OpenStreetMap lists 12 schools, 13 hospitals, 16 parks and 5 supermarkets within the area. Office hubs within 5 km: Bagmane (2.4 km), Global Tech Park (3.4 km), Rajajinagar IT Park (4.7 km). Source: OpenStreetMap contributors."
+      }
+     ]
+    }
+   ],
+   "dropped": [],
+   "seconds": 5.79
+  },
+  {
+   "q": "no brokerage 1bhk in Malad under 30k",
+   "results": 0,
+   "intro": "I couldn't find any 1 BHK listings in Malad without brokerage that match your budget.",
+   "claims": [],
+   "dropped": [],
+   "seconds": 2.34
+  },
+  {
+   "q": "2bhk in Indiranagar near metro under 50k, unfurnished is fine",
+   "results": 1,
+   "intro": "I found a budget-friendly option in the Baiyyappanahalli area that meets your proximity to the metro.",
+   "claims": [
+    {
+     "text": "The available 2 BHK in Baiyyappanahalli is unfurnished and priced at ₹26,500, which is well within your budget.",
+     "refs": [
+      {
+       "kind": "listing",
+       "id": "8cd6e035-7e69-426d-8206-e82798670a8d",
+       "label": "2 BHK, Baiyyappanahalli"
+      }
+     ]
+    },
+    {
+     "text": "This property is located 660 m from Baiyappanahalli metro station.",
+     "refs": [
+      {
+       "kind": "listing",
+       "id": "8cd6e035-7e69-426d-8206-e82798670a8d",
+       "label": "2 BHK, Baiyyappanahalli"
+      }
+     ]
+    },
+    {
+     "text": "While the rent is low, please note the deposit is ₹79,500.",
+     "refs": [
+      {
+       "kind": "listing",
+       "id": "8cd6e035-7e69-426d-8206-e82798670a8d",
+       "label": "2 BHK, Baiyyappanahalli"
+      }
+     ]
+    },
+    {
+     "text": "The area offers good connectivity with the Baiyappanahalli Junction railway station just 594 m away.",
+     "refs": [
+      {
+       "kind": "note",
+       "id": "4",
+       "label": "About Baiyyappanahalli",
+       "text": "Baiyyappanahalli is a locality in Bengaluru. The nearest metro station is Baiyappanahalli, about 626 m from the centre of the area. Baiyyappanahalli Junction railway station is about 594 m away. OpenStreetMap lists 4 schools, 3 hospitals, 17 parks and 4 supermarkets within the area. Office hubs within 5 km: Bagmane Quay (2.2 km), Bagmane Onyx (4.6 km). Source: OpenStreetMap contributors."
+      }
+     ]
+    }
+   ],
+   "dropped": [],
+   "seconds": 4.62
+  },
+  {
+   "q": "Chembur family 2bhk 60k",
+   "results": 0,
+   "intro": "I couldn't find any 2 BHK apartments in Chembur that match your budget and family requirements.",
+   "claims": [],
+   "dropped": [],
+   "seconds": 2.92
+  },
+  {
+   "q": "BTM layout 2bhk semi furnished with power backup",
+   "results": 2,
+   "intro": "I found a couple of semi-furnished 2 BHK options in nearby areas since no exact matches for BTM Layout with power backup were available.",
+   "claims": [
+    {
+     "text": "The JP Nagar listing is a semi-furnished 2 BHK priced at 21,000 rent with a 2,10,000 deposit, located just 369 m from Bilekahalli IIM-B metro.",
+     "refs": [
+      {
+       "kind": "listing",
+       "id": "1125d927-6b2b-455b-89a3-b901982dc769",
+       "label": "2 BHK, JP Nagar"
+      }
+     ]
+    },
+    {
+     "text": "In Wilson Garden, you can find a semi-furnished 2 BHK for 24,500 rent with a lower deposit of 1,22,500, situated 1.3 km from Suddaguntepalya metro.",
+     "refs": [
+      {
+       "kind": "listing",
+       "id": "f9f2d8b4-7e30-4021-a4b3-d5840b4969b4",
+       "label": "2 BHK, Wilson Garden"
+      }
+     ]
+    },
+    {
+     "text": "While JP Nagar offers proximity to office hubs like Infosys (1.5 km) and Brigade Software Park (1.9 km), the Wilson Garden option provides easier access to Novel Business Park (1.2 km).",
+     "refs": [
+      {
+       "kind": "note",
+       "id": "51",
+       "label": "About JP Nagar",
+       "text": "JP Nagar is a locality in Bengaluru. The nearest metro station is Ragigudda, about 838 m from the centre of the area. OpenStreetMap lists 43 schools, 28 hospitals, 36 parks and 22 supermarkets within the area. Office hubs within 5 km: Infosys (1.5 km), Brigade Software Park (1.9 km), Oracle Technology Park (3.2 km). Source: OpenStreetMap contributors."
+      },
+      {
+       "kind": "note",
+       "id": "103",
+       "label": "About Wilson Garden",
+       "text": "Wilson Garden is a locality in Bengaluru. The nearest metro station is Lalbagh, about 1.8 km from the centre of the area. OpenStreetMap lists 27 schools, 26 hospitals, 11 parks and 3 supermarkets within the area. Office hubs within 5 km: Novel Business Park (1.2 km), Global Tech Park (1.5 km), Oracle Technology Park (1.7 km). Source: OpenStreetMap contributors."
+      }
+     ]
+    }
+   ],
+   "dropped": [],
+   "seconds": 5.03
+  },
+  {
+   "q": "1 bhk in Goregaon with swimming pool",
+   "results": 3,
+   "intro": "I found a few 1 BHK options in and around Goregaon that might interest you.",
+   "claims": [
+    {
+     "text": "The best match for your pool requirement is a 1 BHK in Bangur Nagar for ₹26,000 rent and ₹78,000 deposit, which includes a pool, lift, and security.",
+     "refs": [
+      {
+       "kind": "listing",
+       "id": "340c148e-9927-40f2-afa1-472a520f3714",
+       "label": "1 BHK, Bangur Nagar"
+      }
+     ]
+    },
+    {
+     "text": "In Jogeshwari West, you can find a semi-furnished 1 BHK for ₹26,000 rent and ₹78,000 deposit that offers a gym and balcony, though it lacks a pool.",
+     "refs": [
+      {
+       "kind": "listing",
+       "id": "1d722d75-9e95-46c8-a4a6-b83b2478b70b",
+       "label": "1 BHK, Jogeshwari West"
+      }
+     ]
+    },
+    {
+     "text": "If you prefer a peaceful area, there is an unfurnished 1 BHK in Aarey Milk Colony for ₹32,500 rent and ₹65,000 deposit with a clubhouse and play area.",
+     "refs": [
+      {
+       "kind": "listing",
+       "id": "c96d8ee6-a547-4cf9-9f24-2c07e4a4888e",
+       "label": "1 BHK, Aarey Milk Colony"
+      }
+     ]
+    }
+   ],
+   "dropped": [],
+   "seconds": 5.1
+  }
+ ]
+}

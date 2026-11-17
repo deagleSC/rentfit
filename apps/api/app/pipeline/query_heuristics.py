@@ -43,6 +43,8 @@ def heuristic_search(message: str) -> dict[str, Any]:
     if m := re.search(r"(?:under|below|upto|up to|max|within|budget(?: of| is)?|less than|<)\s*(?:rs\.?|₹)?\s*"
                       + _AMOUNT, t):
         out["rent_max"] = amount(m.group(1), m.group(2))
+    elif m := re.search(r"(?:rs\.?|₹)?\s*" + _AMOUNT + r"\s*(?:tak|max|or less|se kam)\b", t):  # "35k tak"
+        out["rent_max"] = amount(m.group(1), m.group(2))
     if m := re.search(r"(?:above|over|more than|min(?:imum)?)\s*(?:rs\.?|₹)?\s*" + _AMOUNT, t):
         out["rent_min"] = amount(m.group(1), m.group(2))
     if "semi" in t:
@@ -69,7 +71,9 @@ def heuristic_search(message: str) -> dict[str, Any]:
         out["commute_minutes"], out["commute_to"] = int(m.group(1)), m.group(2).strip()
     elif m := re.search(r"(?:commute|office|work)\s*(?:to|at|near)\s+([a-z][a-z .'-]{2,40}?)" + _STOP_PLACE, t):
         out["commute_to"] = m.group(1).strip()
-    if m := re.search(r"\b(?:in|at|around)\s+([a-z][a-z .'-]{2,40}?)" + _STOP_PLACE, t):
+    if m := re.search(r"\b(?:what about|how about|try|show me|check)\s+([a-z][a-z .'-]{2,40}?)\s+instead\b", t):
+        out["locality_names"], out["replace_localities"] = [m.group(1).strip()], True
+    elif m := re.search(r"\b(?:in|at|around)\s+([a-z][a-z .'-]{2,40}?)" + _STOP_PLACE, t):
         place = m.group(1).strip()
         if place not in ("bangalore", "bengaluru", "mumbai", "bombay") and not place.endswith("metro"):
             out["locality_names"] = [p.strip() for p in re.split(r"\s+or\s+|\s*/\s*", place) if p.strip()]

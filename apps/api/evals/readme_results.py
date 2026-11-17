@@ -29,7 +29,8 @@ ROWS: list[tuple[str, str, str]] = [  # (eval, metric, label)
     ("latency", "search_done_p50_s", "Search turn, p50 (s, real model, deployed)"),
     ("latency", "search_done_p95_s", "Search turn, p95 (s)"),
     ("latency", "search_cards_p50_s", "Search turn, time to cards p50 (s)"),
-    ("latency", "map_listings_p95_s", "Map pins endpoint, p95 (s)"),
+    ("latency", "map_listings_p95_s", "Map pins endpoint, p95 (s, deployed)"),
+    ("latency", "listing_detail_p95_s", "Listing detail endpoint, p95 (s, deployed)"),
 ]
 
 
@@ -46,10 +47,16 @@ def table() -> str:
             out.append(f"| {label} | not run | | | | |")
             continue
         v = r["metrics"].get(metric)
+        if v is None:
+            out.append(f"| {label} | not measured in the latest run | | | | `{r['eval']}/{r['at']}_{r['version']}` |")
+            continue
         target = r["target"].get(metric, "")
         met = {True: "yes", False: "**no**", None: ""}[r["met"].get(metric)] if metric in r["met"] else ""
         size = r["metrics"].get("cases") or r["metrics"].get("queries") or r["metrics"].get("search_turns") or ""
-        shown = f"{v:.1%}" if isinstance(v, float) and v <= 1 and "_s" not in metric else v
+        seconds = metric.endswith("_s")
+        shown = f"{v:.1%}" if isinstance(v, float) and v <= 1 and not seconds else v
+        if target and not seconds:
+            target = target[:2] + f"{float(target[2:]):.0%}"
         target = target.replace(">=", "≥ ").replace("<=", "≤ ")
         out.append(f"| {label} | {shown} | {target} | {met} | {size} | `{r['eval']}/{r['at']}_{r['version']}` |")
     return "\n".join(out)

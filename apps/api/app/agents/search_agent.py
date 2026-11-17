@@ -13,6 +13,7 @@ import logging
 import operator
 import re
 from collections.abc import Awaitable, Callable
+from dataclasses import dataclass
 from datetime import date
 from typing import Annotated, Any, TypedDict
 from uuid import UUID
@@ -24,7 +25,7 @@ from psycopg.types.json import Jsonb
 from app.agents import common
 from app.core.db import Tx
 from app.domain import relax as relax_mod
-from app.domain.filters import Commute, SearchFilters, SearchUpdate, apply_slang, chips, merge
+from app.domain.filters import Commute, FilterChange, SearchFilters, SearchUpdate, apply_slang, chips, merge
 from app.llm import tracing
 from app.llm.prompts.search import NoteFacts, RespondInput, RespondOutput, ResultFacts, SearchParseInput
 from app.llm.wrapper import deadline_in
@@ -128,6 +129,77 @@ async def _notes_for(tx: Tx, cards: list[res.ListingCard]) -> list[dict[str, Any
     return (await res.locality_notes(tx, [by[c.id] for c in cards if c.id in by]))[:3]
 
 
+async def resolve_names(tx: Tx, upd: SearchUpdate, prev: SearchFilters
+                        ) -> tuple[SearchUpdate, list[tuple[UUID, str]], Commute | None, list[str]]:
+    """Area and place names → IDs. A matched area also sets the city when none is known yet."""
+    upd = upd.model_copy(deep=True)
+    city = upd.city or prev.city
+    notes: list[str] = []
+    found: list[tuple[UUID, str]] = []
+    for name in upd.locality_names[:5]:
+        m = await localities.find(tx, name, city)
+        if m is None:
+            notes.append(f"I couldn't find an area called \"{name}\".")
+        else:
+            found.append((m.id, m.name))
+            city = city or m.city
+            if upd.city is None and prev.city is None:
+                upd.city = m.city  # type: ignore[assignment]
+    commute: Commute | None = None
+    if upd.commute_to:
+        poi = await res.find_poi(tx, upd.commute_to, city)
+        if poi is None:
+            notes.append(f"I couldn't find \"{upd.commute_to}\" on the map, so I left out the commute.")
+        else:
+            commute = Commute(poi_id=poi["id"], poi_name=poi["name"],
+                              max_minutes=upd.commute_minutes or DEFAULT_COMMUTE_MIN, mode=upd.commute_mode or "car")
+            if upd.city is None and prev.city is None:
+                upd.city = poi["city"]
+    return upd, found, commute, notes
+
+
+@dataclass
+class Found:
+    hits: list[hybrid.Hit]
+    commutes: dict[UUID, res.CommuteInfo]
+    searched: SearchFilters  # what produced the results (the tenant's filters, maybe loosened)
+    relaxed: list[str]
+    ranked: list[UUID]
+
+
+async def find(tx: Tx, f: SearchFilters, changes: list[FilterChange]) -> Found:
+    """Hybrid search with the commute filter, the relax ladder and soft-preference ranking."""
+    embedder = get_embedder()
+    vectors: dict[str, list[float]] = {}  # one embedding call per turn, however many relax steps run
+
+    async def run(fl: SearchFilters) -> tuple[list[hybrid.Hit], dict[UUID, res.CommuteInfo]]:
+        hits = await hybrid.search(tx, fl, embedder, vectors=vectors)
+        com = await res.commutes(tx, fl, [h.id for h in hits])
+        if fl.commute:
+            hits = [h for h in hits if h.id in com and com[h.id].minutes <= fl.commute.max_minutes]
+        return hits, com
+
+    hits, com = await run(f)
+    relaxed: list[str] = []
+    searched = f  # the thread keeps the tenant's own filters
+    if len(hits) < relax_mod.MIN_RESULTS:
+        near = await adjacent(tx, f.locality_ids) if f.locality_ids else []
+        # A refinement in this message ("cheaper", "near metro instead") is never undone by relaxing.
+        refined = {c.field for c in changes if c.before not in (None, [], {})}
+        for loosened, step in relax_mod.steps(f, lambda _ids: near, skip=refined):
+            more, more_com = await run(loosened)
+            relaxed.append(step.message)
+            if len(more) > len(hits):
+                hits, com, searched = more, more_com, loosened
+            if len(hits) >= relax_mod.MIN_RESULTS:
+                break
+    ids = [h.id for h in hits]
+    soft = await res.soft_scores(tx, searched.soft, ids)
+    score = {h.id: (0.6 * h.score + 0.4 * soft.get(h.id, 0.0)) if searched.soft else h.score for h in hits}
+    ranked = sorted(ids, key=lambda i: -score[i])[:RESULTS_KEPT]
+    return Found(hits, com, searched, relaxed, ranked)
+
+
 # ------------------------------------------------------------------ the turn
 
 
@@ -182,28 +254,7 @@ async def turn(state: SearchChatState, config: RunnableConfig) -> SearchChatStat
         return done(reply, card_ids=[str(lid)])
 
     # ---- resolve names, merge into the thread's filters
-    city = upd.city or prev.city
-    notes: list[str] = []
-    found: list[tuple[UUID, str]] = []
-    for name in upd.locality_names[:5]:
-        m = await localities.find(tx, name, city)
-        if m is None:
-            notes.append(f"I couldn't find an area called \"{name}\".")
-        else:
-            found.append((m.id, m.name))
-            city = city or m.city
-            if upd.city is None and prev.city is None:
-                upd.city = m.city  # type: ignore[assignment]
-    commute: Commute | None = None
-    if upd.commute_to:
-        poi = await res.find_poi(tx, upd.commute_to, city)
-        if poi is None:
-            notes.append(f"I couldn't find \"{upd.commute_to}\" on the map, so I left out the commute.")
-        else:
-            commute = Commute(poi_id=poi["id"], poi_name=poi["name"],
-                              max_minutes=upd.commute_minutes or DEFAULT_COMMUTE_MIN, mode=upd.commute_mode or "car")
-            if upd.city is None and prev.city is None:
-                upd.city = poi["city"]
+    upd, found, commute, notes = await resolve_names(tx, upd, prev)
     f, changes = merge(prev, upd, localities=found, commute=commute)
     if ctx.get("bbox"):
         f = f.model_copy(update={"bbox": ctx["bbox"], "locality_ids": [], "locality_names": []})
@@ -222,39 +273,11 @@ async def turn(state: SearchChatState, config: RunnableConfig) -> SearchChatStat
         await emit("question", {"text": text})
         return done({"intro": text, "claims": []}, question=q)
 
-    # ---- search, filter by commute, relax
-    embedder = get_embedder()
-    vectors: dict[str, list[float]] = {}  # one embedding call per turn, however many relax steps run
-
-    async def run(fl: SearchFilters) -> tuple[list[hybrid.Hit], dict[UUID, res.CommuteInfo]]:
-        hits = await hybrid.search(tx, fl, embedder, vectors=vectors)
-        com = await res.commutes(tx, fl, [h.id for h in hits])
-        if fl.commute:
-            hits = [h for h in hits if h.id in com and com[h.id].minutes <= fl.commute.max_minutes]
-        return hits, com
-
-    hits, com = await run(f)
-    relaxed: list[str] = []
-    searched = f  # what produced the results; the thread keeps the tenant's own filters (`f`)
-    if len(hits) < relax_mod.MIN_RESULTS:
-        near = await adjacent(tx, f.locality_ids) if f.locality_ids else []
-        # A refinement in this message ("cheaper", "near metro instead") is never undone by relaxing.
-        refined = {c.field for c in changes if c.before not in (None, [], {})}
-        for loosened, step in relax_mod.steps(f, lambda _ids: near, skip=refined):
-            more, more_com = await run(loosened)
-            relaxed.append(step.message)
-            if len(more) > len(hits):
-                hits, com, searched = more, more_com, loosened
-            if len(hits) >= relax_mod.MIN_RESULTS:
-                break
-        if relaxed:
-            await emit("relaxed", {"steps": relaxed, "count": len(hits)})
-
-    # ---- rank: text relevance blended with soft preferences
-    ids = [h.id for h in hits]
-    soft = await res.soft_scores(tx, searched.soft, ids)
-    score = {h.id: (0.6 * h.score + 0.4 * soft.get(h.id, 0.0)) if searched.soft else h.score for h in hits}
-    ranked = sorted(ids, key=lambda i: -score[i])[:RESULTS_KEPT]
+    # ---- search, filter by commute, relax, rank
+    found_ = await find(tx, f, changes)
+    if found_.relaxed:
+        await emit("relaxed", {"steps": found_.relaxed, "count": len(found_.hits)})
+    hits, com, searched, relaxed, ranked = found_.hits, found_.commutes, found_.searched, found_.relaxed, found_.ranked
     chat["last_result_ids"] = ranked
 
     await emit("pins", {"pins": [p.model_dump(mode="json") for p in await res.pins(tx, ranked)]})

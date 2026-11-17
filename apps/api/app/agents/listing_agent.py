@@ -95,6 +95,7 @@ def current_view(listing: Listing) -> dict[str, Any]:
     return d
 
 
+MIN_RENT = 3000
 # Fields the pattern extractor reads only from explicit cues ("rent 28k", "6 months deposit", "family").
 BACKFILL = ("bhk", "rent", "deposit", "deposit_months", "maintenance", "furnishing", "sqft", "tenant_pref")
 
@@ -102,6 +103,8 @@ BACKFILL = ("bhk", "rent", "deposit", "deposit_months", "maintenance", "furnishi
 def backfill(upd: ListingUpdate, message: str) -> ListingUpdate:
     """Fill fields the model left empty from the precise pattern extractor. The small model sometimes
     drops a value it plainly saw (rent, "sirf family"); the patterns never guess, so they only add."""
+    if upd.rent is not None and upd.rent < MIN_RENT:  # "set rent to 1": no flat in these cities rents for that
+        upd = upd.model_copy(update={"rent": None})
     found = heuristic_extract(message)
     extra = {f: found[f] for f in BACKFILL if f in found and getattr(upd, f) is None}
     if "deposit" in extra and upd.deposit_months is not None or "deposit_months" in extra and upd.deposit is not None:

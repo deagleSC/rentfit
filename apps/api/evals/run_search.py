@@ -18,12 +18,12 @@ from evals.common import REPORTS, Timer, load, log_to, use_real_model, write_rep
 
 use_real_model()
 
+from app.agents.search_agent import resolve_names  # noqa: E402
 from app.core.db import close_pool, system_claims, transaction  # noqa: E402
 from app.domain.filters import SearchFilters, SearchUpdate, apply_slang, chips, merge  # noqa: E402
 from app.llm.prompts import PROMPTS, load_all  # noqa: E402
 from app.llm.prompts.search import SearchParseInput  # noqa: E402
 from app.llm.wrapper import call_structured, deadline_in  # noqa: E402
-from app.services import localities  # noqa: E402
 
 TODAY = date(2026, 11, 17)
 
@@ -40,13 +40,9 @@ async def parse(message: str, prev: SearchFilters) -> tuple[SearchUpdate, Search
             print("  call failed:", type(exc).__name__, str(exc)[:120])
             upd = SearchUpdate()
     upd = apply_slang(message, upd, prev)
-    found = []
-    async with transaction(system_claims()) as tx:
-        for name in upd.locality_names[:5]:
-            m = await localities.find(tx, name, upd.city or prev.city)
-            if m:
-                found.append((m.id, m.name))
-    f, _ = merge(prev, upd, localities=found, commute=None)
+    async with transaction(system_claims()) as tx:  # the agent's own name resolution
+        upd, found, commute, _ = await resolve_names(tx, upd, prev)
+    f, _ = merge(prev, upd, localities=found, commute=commute)
     return upd, f, t.s
 
 

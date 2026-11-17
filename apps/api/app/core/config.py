@@ -62,6 +62,8 @@ class Settings(BaseSettings):
     llm_rpm_cap: int = 20
     llm_sync_rpm_cap: int = 10
     llm_request_timeout_s: float = 60.0
+    # A degenerate reply can repeat itself for minutes (seen: 133k characters of JSON); answers fit well under this.
+    llm_max_output_tokens: int = 1200
 
     # Commute (backend plan §13.1). Without a key, the haversine estimate is used.
     ors_api_key: str = ""

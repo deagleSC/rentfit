@@ -26,3 +26,14 @@ def test_heuristic_extract_edits() -> None:
     assert heuristic_extract("bachelors also ok")["tenant_pref"] == "any"
     assert heuristic_extract("make deposit 3 months")["deposit_months"] == 3
     assert heuristic_extract("fully furnished now")["furnishing"] == "full"
+
+
+def test_rent_never_takes_the_deposit() -> None:
+    from app.pipeline.normalise import heuristic_extract
+
+    for text, rent in [("Malad East 1bhk 22k rent 70k deposit", 22000), ("2bhk, 18000 rent, 1 lakh deposit", 18000),
+                       ("20000 rent 2 lakh deposit", 20000), ("rent 35k, deposit 1L", 35000),
+                       ("28 hazaar rent, 6 mahine ka deposit", 28000), ("Rent: ₹32,000 + 2,500 maintenance", 32000),
+                       ("rent is 45000", 45000), ("kiraya 48000", 48000)]:
+        assert heuristic_extract(text).get("rent") == rent, text
+    assert "rent" not in heuristic_extract("rent, 6 months deposit")
