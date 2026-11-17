@@ -46,8 +46,21 @@ QUESTIONS: dict[str, str] = {
 PHOTOS_QUESTION = f"Add at least {PHOTOS_MIN} photos so tenants can see the flat."
 READY = "Everything needed is there. Review the preview and publish when you're ready."
 
+def inr(v: int) -> str:
+    """Indian digit grouping: 126000 → '1,26,000'."""
+    s = str(v)
+    if len(s) <= 3:
+        return s
+    head, tail = s[:-3], s[-3:]
+    groups: list[str] = []
+    while len(head) > 2:
+        groups.insert(0, head[-2:])
+        head = head[:-2]
+    return ",".join([head, *groups, tail]) if head else ",".join([*groups, tail])
+
+
 LABELS: dict[str, str] = {
-    "bhk": "{} BHK", "rent": "rent ₹{:,}", "deposit": "deposit ₹{:,}", "maintenance": "maintenance ₹{:,}",
+    "bhk": "{} BHK", "rent": "rent ₹{}", "deposit": "deposit ₹{}", "maintenance": "maintenance ₹{}",
     "furnishing": "{}", "sqft": "{} sq ft", "floor": "floor {}", "total_floors": "{} floors",
     "tenant_pref": "{}", "available_from": "available from {}", "city": "in {}",
 }
@@ -59,6 +72,8 @@ WORDS: dict[str, dict[Any, str]] = {
 
 
 def _pretty(field: str, value: Any) -> Any:
+    if field in ("rent", "deposit", "maintenance") and isinstance(value, int):
+        return inr(value)
     if field == "available_from" and isinstance(value, str):
         d = date.fromisoformat(value)
         return "now" if d <= date.today() else d.strftime("%-d %b %Y")
