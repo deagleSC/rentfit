@@ -1,6 +1,6 @@
 """Latency on the deployed API (backend plan §15.2), real model.
 
-    uv run python -m evals.run_latency [https://rentfit-api.vercel.app] [--reads-only]
+    uv run python -m evals.run_latency [https://rentfit-api.vercel.app] [--reads-only] [--turns=N]
 
 Turns are spaced PACE_S apart: the API allows 10 request-path model calls a minute across all users
 (the free tier), and back-to-back turns would measure that limit instead of latency.
@@ -33,6 +33,8 @@ QUERIES = ["2 BHK in Koramangala under {k}k", "1bhk for bachelors in HSR Layout 
            "Bengaluru mein 2 bhk {k} hazaar tak metro ke paas"]
 
 
+# --turns=N: fewer search turns (2 model calls each) when the day's budget is nearly spent
+TURNS = next((int(a.split("=", 1)[1]) for a in sys.argv if a.startswith("--turns=")), len(QUERIES) * 2)
 PACE_S = 15
 
 
@@ -93,7 +95,7 @@ async def main() -> None:
         }
         stamp = int(time.time())
         turns: list[dict[str, Any]] = []
-        for i, q in enumerate([] if READS_ONLY else QUERIES * 2):
+        for i, q in enumerate([] if READS_ONLY else (QUERIES * 2)[:TURNS]):
             msg = q.format(k=30 + (stamp // 7 + i * 13) % 60)  # a fresh budget per turn keeps the cache cold
             if i:
                 await asyncio.sleep(PACE_S)  # stay under the request-path model cap (10 calls/min, 2 per turn)

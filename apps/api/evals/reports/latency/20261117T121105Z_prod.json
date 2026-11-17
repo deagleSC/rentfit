@@ -1,0 +1,101 @@
+{
+ "eval": "latency",
+ "version": "prod",
+ "at": "20261117T121105Z",
+ "metrics": {
+  "health_p50_s": 0.1,
+  "cities_p50_s": 0.1,
+  "map_listings_p50_s": 0.11,
+  "listing_detail_p50_s": 0.19,
+  "health_p95_s": 0.32,
+  "cities_p95_s": 0.12,
+  "map_listings_p95_s": 0.16,
+  "listing_detail_p95_s": 0.69,
+  "search_first_event_p50_s": 2.5,
+  "search_cards_p50_s": 3.19,
+  "search_done_p50_s": 9.78,
+  "search_done_p95_s": 34.5,
+  "search_turns": 8,
+  "search_errors": 1
+ },
+ "target": {
+  "search_done_p95_s": "<=15",
+  "map_listings_p95_s": "<=1.0"
+ },
+ "met": {
+  "search_done_p95_s": false,
+  "map_listings_p95_s": true
+ },
+ "models": [
+  "google/gemma-4-26b-a4b-it",
+  "google/gemma-4-31b-it"
+ ],
+ "provider": "fake",
+ "api": "https://rentfit-api.vercel.app",
+ "cases": [
+  {
+   "message": "2 BHK in Koramangala under 74k",
+   "first_event_s": 2.16,
+   "cards_s": 2.5,
+   "done_s": 8.86,
+   "chat_id": "7e418221-6fd4-4c00-92a9-4cab6de66d72",
+   "error": null
+  },
+  {
+   "message": "1bhk for bachelors in HSR Layout below 87k",
+   "first_event_s": 3.27,
+   "cards_s": 3.62,
+   "done_s": 12.26,
+   "chat_id": "bd01bda2-71f9-4edd-b3dd-1ea243848fa2",
+   "error": null
+  },
+  {
+   "message": "family flat in Powai, 3 bedrooms, budget 40k",
+   "first_event_s": 2.79,
+   "cards_s": null,
+   "done_s": 2.79,
+   "chat_id": "55ed4698-ef4f-4bd8-aacd-052e91038802",
+   "error": null
+  },
+  {
+   "message": "Andheri West 1 BHK furnished under 53k",
+   "first_event_s": 5.78,
+   "cards_s": 5.78,
+   "done_s": 9.78,
+   "chat_id": "8e73a15a-23ff-4fb4-a55c-59129e32dec8",
+   "error": null
+  },
+  {
+   "message": "semi furnished 2bhk in Whitefield under 66k with a gym",
+   "first_event_s": null,
+   "cards_s": null,
+   "done_s": null,
+   "chat_id": null,
+   "error": "ReadTimeout: "
+  },
+  {
+   "message": "Bengaluru mein 2 bhk 79 hazaar tak metro ke paas",
+   "first_event_s": 1.3,
+   "cards_s": 2.28,
+   "done_s": 6.53,
+   "chat_id": "d8f66081-ebec-44de-9aac-e36b75677ad3",
+   "error": null
+  },
+  {
+   "message": "2 BHK in Koramangala under 32k",
+   "first_event_s": 2.2,
+   "cards_s": 3.02,
+   "done_s": 15.33,
+   "chat_id": "3ba92b55-2988-46c5-9e66-173324022a2b",
+   "error": null
+  },
+  {
+   "message": "1bhk for bachelors in HSR Layout below 45k",
+   "first_event_s": 2.5,
+   "cards_s": 3.36,
+   "done_s": 34.5,
+   "chat_id": "28e7e42f-6f4b-4d94-b409-0ca978786946",
+   "error": null
+  }
+ ]
+}

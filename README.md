@@ -76,11 +76,11 @@ each eval in [`apps/api/evals/reports/`](apps/api/evals/reports). Real model unl
 | Retrieval recall@10: hybrid | 82.4% |  |  | 30 | `retrieval/20261117T080842Z_gte-small-rrf60` |
 | Answers: unsupported claims (dropped by the checker) | 0.0% | ≤ 2% | yes | 15 | `answers/20261117T085645Z_search_respond-v1` |
 | Answers: claims with a citation | 100.0% | ≥ 90% | yes | 15 | `answers/20261117T085645Z_search_respond-v1` |
-| Search turn, p50 (s, real model, deployed) | not measured in the latest run | | | | `latency/20261117T090727Z_prod-reads` |
-| Search turn, p95 (s) | not measured in the latest run | | | | `latency/20261117T090727Z_prod-reads` |
-| Search turn, time to cards p50 (s) | not measured in the latest run | | | | `latency/20261117T090727Z_prod-reads` |
-| Map pins endpoint, p95 (s, deployed) | 0.1 | ≤ 1.0 | yes |  | `latency/20261117T090727Z_prod-reads` |
-| Listing detail endpoint, p95 (s, deployed) | 0.44 |  |  |  | `latency/20261117T090727Z_prod-reads` |
+| Search turn, p50 (s, real model, deployed) | 9.78 |  |  | 8 | `latency/20261117T121105Z_prod` |
+| Search turn, p95 (s) | 34.5 | ≤ 15 | **no** | 8 | `latency/20261117T121105Z_prod` |
+| Search turn, time to cards p50 (s) | 3.19 |  |  | 8 | `latency/20261117T121105Z_prod` |
+| Map pins endpoint, p95 (s, deployed) | 0.16 | ≤ 1.0 | yes | 8 | `latency/20261117T121105Z_prod` |
+| Listing detail endpoint, p95 (s, deployed) | 0.69 |  |  | 8 | `latency/20261117T121105Z_prod` |
 <!-- results:end -->
 
 How each is measured:
@@ -100,11 +100,13 @@ also made while looking at these same cases. These include filling fields the mo
 precise patterns, accepting near-miss values like "car parking", and reading "what about X instead"
 in code. A held-out set is the next step before trusting the parsing and extraction numbers.
 
-**Search latency is not in this run.** On the free model tier, an earlier back-to-back run hit the
-API's request-path cap of 10 model calls per minute, which is shared by all users, so about 5
-search turns per minute fit in total. The paced run then used up the day's model budget. The read
-endpoints above were measured without the model. Search latency will be measured with
-`uv run python -m evals.run_latency`, after the budget resets at 00:00 UTC.
+**Search latency misses its target.** This is 8 fresh search turns on the deployed API with the
+real model, a small sample because of the daily cap. Cards appear after about 3 s, since filters,
+search and the map are code. The full reply waits on the model: p50 is 9.8 s and p95 is 34.5 s,
+against a 15 s target, and 1 of the 8 turns timed out. Most of the variance comes from the free
+model tier, where the same kind of query took 6.5 s on one turn and 34.5 s on another. A paid
+provider or a smaller response model would be the first thing to try. The API also allows 10
+model calls a minute across all users, which is about 5 search turns a minute.
 
 ## Repository
 
