@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import logging
 import operator
+import re
 from collections.abc import Awaitable, Callable
 from datetime import date
 from typing import Annotated, Any, TypedDict
@@ -34,6 +35,7 @@ from app.services import search_results as res
 from app.services.embeddings import get_embedder
 
 log = logging.getLogger("rentfit.search")
+_REF_TOKEN = re.compile(r"\s*[(\[]\s*[LN]\d+(?:\s*,\s*[LN]\d+)*\s*[)\]]|\b[LN]\d+\b:?\s*")  # "(L1)", "[L1, N2]", "L1:"
 
 Emit = Callable[[str, dict[str, Any]], Awaitable[None]]
 RESULTS_KEPT = 20  # ids remembered for ordinals and pins
@@ -113,7 +115,8 @@ async def respond(tx: Tx, emit: Emit, request: str, f: SearchFilters, relaxed: l
     for n, row in zip(notes, notes_rows, strict=True):
         ref_ids[n.ref] = {"kind": "note", "id": str(row["id"]), "label": f"About {row['locality']}",
                           "text": row["content"]}
-    claims = [{"text": c.text, "refs": [ref_ids[r] for r in c.cites]} for c in checked.kept]
+    claims = [{"text": _REF_TOKEN.sub("", c.text).strip(), "refs": [ref_ids[r] for r in c.cites]}
+              for c in checked.kept]
     await emit("token", {"text": out.intro})
     await emit("citations", {"claims": claims})
     return {"intro": out.intro, "claims": claims}
@@ -221,9 +224,10 @@ async def turn(state: SearchChatState, config: RunnableConfig) -> SearchChatStat
 
     # ---- search, filter by commute, relax
     embedder = get_embedder()
+    vectors: dict[str, list[float]] = {}  # one embedding call per turn, however many relax steps run
 
     async def run(fl: SearchFilters) -> tuple[list[hybrid.Hit], dict[UUID, res.CommuteInfo]]:
-        hits = await hybrid.search(tx, fl, embedder)
+        hits = await hybrid.search(tx, fl, embedder, vectors=vectors)
         com = await res.commutes(tx, fl, [h.id for h in hits])
         if fl.commute:
             hits = [h for h in hits if h.id in com and com[h.id].minutes <= fl.commute.max_minutes]

@@ -108,3 +108,10 @@ def test_commute_estimate() -> None:
 def test_nonsense_budget_ignored() -> None:
     f, ch = merge(SearchFilters(rent_max=30000), SearchUpdate(rent_max=1), localities=[], commute=None)
     assert f.rent_max == 30000 and ch == []
+
+
+def test_ref_tokens_are_removed_from_claim_text() -> None:
+    from app.agents.search_agent import _REF_TOKEN
+
+    text = "In Haralur, a 2 BHK for ₹29,000 (L1) is 4.0 km from the metro [L1, N2]. L3: also good."
+    assert _REF_TOKEN.sub("", text) == "In Haralur, a 2 BHK for ₹29,000 is 4.0 km from the metro. also good."

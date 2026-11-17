@@ -107,14 +107,19 @@ async def candidates(tx: Tx, f: SearchFilters) -> list[UUID]:
     return [r["id"] for r in rows]
 
 
-async def search(tx: Tx, f: SearchFilters, embedder: Embedder, top: int = TOP) -> list[Hit]:
+async def search(tx: Tx, f: SearchFilters, embedder: Embedder, top: int = TOP,
+                 vectors: dict[str, list[float]] | None = None) -> list[Hit]:
+    """`vectors` caches query embeddings across calls (the relax ladder re-searches the same text)."""
     ids = await candidates(tx, f)
     if not ids:
         return []
     q = text_query(f)
     if not q:
         return [Hit(i, 1.0 - n / len(ids)) for n, i in enumerate(ids[:top])]
-    [vec] = await embedder.embed([q])
+    cache = vectors if vectors is not None else {}
+    if q not in cache:
+        [cache[q]] = await embedder.embed([q])
+    vec = cache[q]
     vrows = await tx.fetchall(
         """
         select listing_id, min(embedding <=> %s::extensions.vector) as d from listing_chunks
