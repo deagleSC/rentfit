@@ -115,3 +115,27 @@ def test_ref_tokens_are_removed_from_claim_text() -> None:
 
     text = "In Haralur, a 2 BHK for ₹29,000 (L1) is 4.0 km from the metro [L1, N2]. L3: also good."
     assert _REF_TOKEN.sub("", text) == "In Haralur, a 2 BHK for ₹29,000 is 4.0 km from the metro. also good."
+
+
+def test_slang_backfills_what_the_model_drops() -> None:
+    prev = SearchFilters(city="bangalore", locality_ids=[KOR], locality_names=["Koramangala"])
+    u = apply_slang("what about HSR instead", SearchUpdate(clear=["locality_names"]), prev)
+    assert u.locality_names == ["hsr"] and u.replace_localities and "locality_ids" not in u.clear
+    assert "locality_ids" in apply_slang("any area is fine", SearchUpdate(), prev).clear
+    assert apply_slang("commute for the 2nd one?", SearchUpdate(intent="ask_about_result"), prev).result_number == 2
+
+
+def test_search_backfill_and_lenient_values() -> None:
+    u = SearchUpdate.model_validate({"city": "Thane", "tenant_type": "", "pets": "dog"})
+    assert u.city is None and u.tenant_type is None and u.pets is True
+    got = apply_slang("Thane mein family ke liye 2 bhk, 35k tak, no brokerage", SearchUpdate(), SearchFilters())
+    assert got.bhk == [2] and got.rent_max == 35000 and got.tenant_type == "family" and got.no_brokerage
+
+
+def test_claims_are_read_leniently() -> None:
+    from app.llm.prompts.search import RespondOutput
+
+    out = RespondOutput.model_validate({"intro": "x", "claims": [
+        "Shivajinagar mein rent ₹28,000 hai (L2).", {"claim": "JP Nagar ₹21,000 (L3, N1)."},
+        {"text": "ok", "cites": ["L1"]}]})
+    assert [c.cites for c in out.claims] == [["L2"], ["L3", "N1"], ["L1"]]

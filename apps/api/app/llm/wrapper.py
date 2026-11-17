@@ -196,6 +196,7 @@ async def call_structured[T: BaseModel](
                         tools=[tool],
                         tool_choice={"type": "function", "function": {"name": TOOL_NAME}},
                         temperature=0,
+                        max_tokens=get_settings().llm_max_output_tokens,
                         timeout=min(get_settings().llm_request_timeout_s, remaining(deadline)),
                         extra_body={"models": models, "provider": provider_prefs(), "usage": {"include": True}},
                     )
@@ -284,6 +285,7 @@ async def stream_text(
                     model=order[0],
                     messages=prompt.render(input),
                     temperature=0.4,
+                    max_tokens=get_settings().llm_max_output_tokens,
                     stream=True,
                     stream_options={"include_usage": True},  # a final chunk carries token usage
                     timeout=min(get_settings().llm_request_timeout_s, remaining(deadline)),

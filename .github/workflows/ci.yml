@@ -66,6 +66,9 @@ jobs:
       - name: Lint
         run: pnpm lint
       - name: Unit tests
-        run: pnpm turbo run test --filter=!@rentfit/api
+        run: pnpm turbo run test --filter=!@rentfit/api --filter=!@rentfit/e2e
       - name: Build apps
-        run: pnpm turbo run build --filter=@rentfit/landlord --filter=@rentfit/tenant
+        shell: bash  # -o pipefail, so `| tee` doesn't hide a failed build
+        run: pnpm turbo run build --filter=@rentfit/landlord --filter=@rentfit/tenant --log-prefix=task | tee build.log
+      - name: Bundle budget
+        run: node scripts/check-bundle.mjs build.log

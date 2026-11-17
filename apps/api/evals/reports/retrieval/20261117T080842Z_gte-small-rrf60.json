@@ -1,0 +1,568 @@
+{
+ "eval": "retrieval",
+ "version": "gte-small-rrf60",
+ "at": "20261117T080842Z",
+ "metrics": {
+  "ndcg@10_vector": 0.607,
+  "ndcg@10_text": 0.769,
+  "ndcg@10_hybrid": 0.83,
+  "recall@10_vector": 0.624,
+  "recall@10_text": 0.788,
+  "recall@10_hybrid": 0.824,
+  "relevant_share": 0.309,
+  "queries": 30
+ },
+ "target": {
+  "ndcg@10_hybrid": ">=0.70"
+ },
+ "met": {
+  "ndcg@10_hybrid": true
+ },
+ "models": [
+  "google/gemma-4-26b-a4b-it",
+  "google/gemma-4-31b-it"
+ ],
+ "provider": "fake",
+ "cases": [
+  {
+   "city": "bangalore",
+   "q": "flat with a gym and swimming pool",
+   "relevant": 3,
+   "of": 50,
+   "vector": {
+    "ndcg@10": 0.432,
+    "recall@10": 0.667
+   },
+   "text": {
+    "ndcg@10": 1.0,
+    "recall@10": 1.0
+   },
+   "hybrid": {
+    "ndcg@10": 0.765,
+    "recall@10": 0.667
+   }
+  },
+  {
+   "city": "mumbai",
+   "q": "flat with a gym and swimming pool",
+   "relevant": 4,
+   "of": 50,
+   "vector": {
+    "ndcg@10": 0.39,
+    "recall@10": 0.25
+   },
+   "text": {
+    "ndcg@10": 1.0,
+    "recall@10": 1.0
+   },
+   "hybrid": {
+    "ndcg@10": 0.772,
+    "recall@10": 1.0
+   }
+  },
+  {
+   "city": "bangalore",
+   "q": "pet friendly apartment, I have a dog",
+   "relevant": 16,
+   "of": 50,
+   "vector": {
+    "ndcg@10": 0.633,
+    "recall@10": 0.6
+   },
+   "text": {
+    "ndcg@10": 0.195,
+    "recall@10": 0.2
+   },
+   "hybrid": {
+    "ndcg@10": 0.59,
+    "recall@10": 0.6
+   }
+  },
+  {
+   "city": "mumbai",
+   "q": "pets allowed",
+   "relevant": 14,
+   "of": 50,
+   "vector": {
+    "ndcg@10": 0.581,
+    "recall@10": 0.5
+   },
+   "text": {
+    "ndcg@10": 1.0,
+    "recall@10": 1.0
+   },
+   "hybrid": {
+    "ndcg@10": 1.0,
+    "recall@10": 1.0
+   }
+  },
+  {
+   "city": "bangalore",
+   "q": "fully furnished flat with AC",
+   "relevant": 3,
+   "of": 50,
+   "vector": {
+    "ndcg@10": 0.469,
+    "recall@10": 0.333
+   },
+   "text": {
+    "ndcg@10": 1.0,
+    "recall@10": 1.0
+   },
+   "hybrid": {
+    "ndcg@10": 0.611,
+    "recall@10": 0.667
+   }
+  },
+  {
+   "city": "mumbai",
+   "q": "furnished home with washing machine and fridge",
+   "relevant": 2,
+   "of": 50,
+   "vector": {
+    "ndcg@10": 0.307,
+    "recall@10": 0.5
+   },
+   "text": {
+    "ndcg@10": 0.218,
+    "recall@10": 0.5
+   },
+   "hybrid": {
+    "ndcg@10": 0.613,
+    "recall@10": 0.5
+   }
+  },
+  {
+   "city": "bangalore",
+   "q": "no brokerage, direct owner",
+   "relevant": 34,
+   "of": 50,
+   "vector": {
+    "ndcg@10": 1.0,
+    "recall@10": 1.0
+   },
+   "text": {
+    "ndcg@10": 1.0,
+    "recall@10": 1.0
+   },
+   "hybrid": {
+    "ndcg@10": 1.0,
+    "recall@10": 1.0
+   }
+  },
+  {
+   "city": "mumbai",
+   "q": "owner listing without broker",
+   "relevant": 26,
+   "of": 50,
+   "vector": {
+    "ndcg@10": 0.518,
+    "recall@10": 0.6
+   },
+   "text": {
+    "ndcg@10": 0.0,
+    "recall@10": 0.0
+   },
+   "hybrid": {
+    "ndcg@10": 0.518,
+    "recall@10": 0.6
+   }
+  },
+  {
+   "city": "bangalore",
+   "q": "gated society with security and CCTV",
+   "relevant": 8,
+   "of": 50,
+   "vector": {
+    "ndcg@10": 0.17,
+    "recall@10": 0.25
+   },
+   "text": {
+    "ndcg@10": 1.0,
+    "recall@10": 1.0
+   },
+   "hybrid": {
+    "ndcg@10": 0.63,
+    "recall@10": 0.625
+   }
+  },
+  {
+   "city": "mumbai",
+   "q": "gated community",
+   "relevant": 25,
+   "of": 50,
+   "vector": {
+    "ndcg@10": 0.385,
+    "recall@10": 0.4
+   },
+   "text": {
+    "ndcg@10": 1.0,
+    "recall@10": 1.0
+   },
+   "hybrid": {
+    "ndcg@10": 1.0,
+    "recall@10": 1.0
+   }
+  },
+  {
+   "city": "bangalore",
+   "q": "house with a balcony",
+   "relevant": 10,
+   "of": 50,
+   "vector": {
+    "ndcg@10": 0.514,
+    "recall@10": 0.4
+   },
+   "text": {
+    "ndcg@10": 1.0,
+    "recall@10": 1.0
+   },
+   "hybrid": {
+    "ndcg@10": 1.0,
+    "recall@10": 1.0
+   }
+  },
+  {
+   "city": "mumbai",
+   "q": "flat with balcony",
+   "relevant": 16,
+   "of": 50,
+   "vector": {
+    "ndcg@10": 0.445,
+    "recall@10": 0.4
+   },
+   "text": {
+    "ndcg@10": 1.0,
+    "recall@10": 1.0
+   },
+   "hybrid": {
+    "ndcg@10": 1.0,
+    "recall@10": 1.0
+   }
+  },
+  {
+   "city": "bangalore",
+   "q": "unfurnished place for a family",
+   "relevant": 11,
+   "of": 50,
+   "vector": {
+    "ndcg@10": 0.68,
+    "recall@10": 0.6
+   },
+   "text": {
+    "ndcg@10": 0.934,
+    "recall@10": 0.9
+   },
+   "hybrid": {
+    "ndcg@10": 0.849,
+    "recall@10": 0.8
+   }
+  },
+  {
+   "city": "mumbai",
+   "q": "semi furnished flat for families",
+   "relevant": 22,
+   "of": 50,
+   "vector": {
+    "ndcg@10": 0.65,
+    "recall@10": 0.7
+   },
+   "text": {
+    "ndcg@10": 1.0,
+    "recall@10": 1.0
+   },
+   "hybrid": {
+    "ndcg@10": 0.936,
+    "recall@10": 0.9
+   }
+  },
+  {
+   "city": "bangalore",
+   "q": "bachelors allowed",
+   "relevant": 36,
+   "of": 50,
+   "vector": {
+    "ndcg@10": 1.0,
+    "recall@10": 1.0
+   },
+   "text": {
+    "ndcg@10": 1.0,
+    "recall@10": 1.0
+   },
+   "hybrid": {
+    "ndcg@10": 0.936,
+    "recall@10": 0.9
+   }
+  },
+  {
+   "city": "mumbai",
+   "q": "working bachelors welcome",
+   "relevant": 32,
+   "of": 50,
+   "vector": {
+    "ndcg@10": 1.0,
+    "recall@10": 1.0
+   },
+   "text": {
+    "ndcg@10": 1.0,
+    "recall@10": 1.0
+   },
+   "hybrid": {
+    "ndcg@10": 1.0,
+    "recall@10": 1.0
+   }
+  },
+  {
+   "city": "bangalore",
+   "q": "building with lift and power backup",
+   "relevant": 9,
+   "of": 50,
+   "vector": {
+    "ndcg@10": 0.383,
+    "recall@10": 0.222
+   },
+   "text": {
+    "ndcg@10": 1.0,
+    "recall@10": 1.0
+   },
+   "hybrid": {
+    "ndcg@10": 0.535,
+    "recall@10": 0.444
+   }
+  },
+  {
+   "city": "mumbai",
+   "q": "lift and 24x7 water supply",
+   "relevant": 4,
+   "of": 50,
+   "vector": {
+    "ndcg@10": 0.248,
+    "recall@10": 0.5
+   },
+   "text": {
+    "ndcg@10": 1.0,
+    "recall@10": 1.0
+   },
+   "hybrid": {
+    "ndcg@10": 0.637,
+    "recall@10": 0.5
+   }
+  },
+  {
+   "city": "bangalore",
+   "q": "modular kitchen",
+   "relevant": 15,
+   "of": 50,
+   "vector": {
+    "ndcg@10": 0.722,
+    "recall@10": 0.6
+   },
+   "text": {
+    "ndcg@10": 1.0,
+    "recall@10": 1.0
+   },
+   "hybrid": {
+    "ndcg@10": 1.0,
+    "recall@10": 1.0
+   }
+  },
+  {
+   "city": "mumbai",
+   "q": "kids play area and clubhouse",
+   "relevant": 25,
+   "of": 50,
+   "vector": {
+    "ndcg@10": 0.86,
+    "recall@10": 0.8
+   },
+   "text": {
+    "ndcg@10": 1.0,
+    "recall@10": 1.0
+   },
+   "hybrid": {
+    "ndcg@10": 1.0,
+    "recall@10": 1.0
+   }
+  },
+  {
+   "city": "bangalore",
+   "q": "gym aur pool wala flat chahiye",
+   "relevant": 3,
+   "of": 50,
+   "vector": {
+    "ndcg@10": 0.296,
+    "recall@10": 0.333
+   },
+   "text": {
+    "ndcg@10": 1.0,
+    "recall@10": 1.0
+   },
+   "hybrid": {
+    "ndcg@10": 0.704,
+    "recall@10": 0.667
+   }
+  },
+  {
+   "city": "mumbai",
+   "q": "family ke liye furnished ghar",
+   "relevant": 4,
+   "of": 50,
+   "vector": {
+    "ndcg@10": 0.545,
+    "recall@10": 0.75
+   },
+   "text": {
+    "ndcg@10": 0.494,
+    "recall@10": 0.75
+   },
+   "hybrid": {
+    "ndcg@10": 0.682,
+    "recall@10": 0.75
+   }
+  },
+  {
+   "city": "bangalore",
+   "q": "car parking available",
+   "relevant": 25,
+   "of": 50,
+   "vector": {
+    "ndcg@10": 0.357,
+    "recall@10": 0.4
+   },
+   "text": {
+    "ndcg@10": 1.0,
+    "recall@10": 1.0
+   },
+   "hybrid": {
+    "ndcg@10": 0.857,
+    "recall@10": 0.8
+   }
+  },
+  {
+   "city": "mumbai",
+   "q": "parking for my car",
+   "relevant": 27,
+   "of": 50,
+   "vector": {
+    "ndcg@10": 0.563,
+    "recall@10": 0.7
+   },
+   "text": {
+    "ndcg@10": 1.0,
+    "recall@10": 1.0
+   },
+   "hybrid": {
+    "ndcg@10": 1.0,
+    "recall@10": 1.0
+   }
+  },
+  {
+   "city": "bangalore",
+   "q": "big 3 bedroom flat",
+   "relevant": 15,
+   "of": 50,
+   "vector": {
+    "ndcg@10": 1.0,
+    "recall@10": 1.0
+   },
+   "text": {
+    "ndcg@10": 0.0,
+    "recall@10": 0.0
+   },
+   "hybrid": {
+    "ndcg@10": 1.0,
+    "recall@10": 1.0
+   }
+  },
+  {
+   "city": "mumbai",
+   "q": "spacious 3 bhk for a large family",
+   "relevant": 17,
+   "of": 50,
+   "vector": {
+    "ndcg@10": 0.629,
+    "recall@10": 0.6
+   },
+   "text": {
+    "ndcg@10": 0.218,
+    "recall@10": 0.3
+   },
+   "hybrid": {
+    "ndcg@10": 0.35,
+    "recall@10": 0.4
+   }
+  },
+  {
+   "city": "bangalore",
+   "q": "compact 1 bhk for a single person",
+   "relevant": 13,
+   "of": 50,
+   "vector": {
+    "ndcg@10": 0.934,
+    "recall@10": 0.9
+   },
+   "text": {
+    "ndcg@10": 0.0,
+    "recall@10": 0.0
+   },
+   "hybrid": {
+    "ndcg@10": 0.934,
+    "recall@10": 0.9
+   }
+  },
+  {
+   "city": "mumbai",
+   "q": "studio or 1bhk",
+   "relevant": 15,
+   "of": 50,
+   "vector": {
+    "ndcg@10": 1.0,
+    "recall@10": 1.0
+   },
+   "text": {
+    "ndcg@10": 0.0,
+    "recall@10": 0.0
+   },
+   "hybrid": {
+    "ndcg@10": 1.0,
+    "recall@10": 1.0
+   }
+  },
+  {
+   "city": "bangalore",
+   "q": "wifi and intercom",
+   "relevant": 24,
+   "of": 50,
+   "vector": {
+    "ndcg@10": 0.915,
+    "recall@10": 0.9
+   },
+   "text": {
+    "ndcg@10": 1.0,
+    "recall@10": 1.0
+   },
+   "hybrid": {
+    "ndcg@10": 1.0,
+    "recall@10": 1.0
+   }
+  },
+  {
+   "city": "mumbai",
+   "q": "geyser and AC",
+   "relevant": 5,
+   "of": 50,
+   "vector": {
+    "ndcg@10": 0.589,
+    "recall@10": 0.8
+   },
+   "text": {
+    "ndcg@10": 1.0,
+    "recall@10": 1.0
+   },
+   "hybrid": {
+    "ndcg@10": 0.982,
+    "recall@10": 1.0
+   }
+  }
+ ]
+}

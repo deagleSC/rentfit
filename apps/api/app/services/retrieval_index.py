@@ -9,6 +9,8 @@ from __future__ import annotations
 from typing import Any
 from uuid import UUID
 
+import psycopg
+
 from app.core.db import Tx
 from app.pipeline.chunk import content_hash, listing_chunks, split
 from app.services.embeddings import Embedder, get_embedder, to_pgvector
@@ -43,7 +45,11 @@ async def index_listing(tx: Tx, listing_id: UUID, embedder: Embedder | None = No
     texts = listing_chunks(dict(row))
     vectors = await _embed_reusing(tx, "listing_chunks", "listing_id", listing_id, texts, embedder or get_embedder())
     await tx.conn.execute("delete from listing_chunks where listing_id = %s", (listing_id,))
-    await _insert(tx, "listing_chunks", ["listing_id"], [listing_id], texts, vectors)
+    try:
+        async with tx.conn.transaction():  # savepoint: the listing may be deleted while we embedded
+            await _insert(tx, "listing_chunks", ["listing_id"], [listing_id], texts, vectors)
+    except psycopg.errors.ForeignKeyViolation:
+        return 0
     return len(texts)
 
 

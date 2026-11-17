@@ -88,10 +88,10 @@
   --popover-foreground: oklch(0.2261 0.0208 156.4159);
   --primary: oklch(0.5317 0.1009 153.3946);
   --primary-foreground: oklch(0.9843 0.0011 197.1389);
-  --secondary: oklch(0.5862 0.0855 61.2167);
+  --secondary: oklch(0.52 0.0855 61.2167); /* darker than tweakcn's 0.5862: 4.5:1 with white text (axe) */
   --secondary-foreground: oklch(0.9848 0.0013 106.4233);
   --muted: oklch(0.9419 0.0119 145.4801);
-  --muted-foreground: oklch(0.4870 0.0420 156.8363);
+  --muted-foreground: oklch(0.45 0.0420 156.8363); /* tweakcn 0.487: below 4.5:1 on accent rows (axe) */
   --accent: oklch(0.8900 0.0109 158.8202);
   --accent-foreground: oklch(0.2841 0.0273 155.1231);
   --destructive: oklch(0.5115 0.1228 22.3979);

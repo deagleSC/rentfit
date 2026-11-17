@@ -10,12 +10,14 @@ from __future__ import annotations
 from datetime import date
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from app.domain.listing import Amenity, Furnishing, Parking, TenantPref
 from app.llm.prompts import UNTRUSTED_RULE, Prompt, register, untrusted
 from app.pipeline.normalise import heuristic_extract
 
+CITY_ALIASES = {"bangalore": "bangalore", "bengaluru": "bangalore", "blr": "bangalore", "mumbai": "mumbai",
+                "bombay": "mumbai"}
 Clearable = Literal["maintenance", "sqft", "floor", "total_floors", "pets", "parking", "gated", "no_brokerage",
                     "title", "description"]
 
@@ -54,6 +56,30 @@ class ListingUpdate(BaseModel):
     remove_amenities: list[Amenity] = Field(default_factory=list)
     clear: list[Clearable] = Field(default_factory=list, description="Fields the landlord asked to remove")
 
+    # Lenient readings of near-miss values, so a small model's "car parking" costs no retry.
+    @field_validator("city", mode="before")
+    @classmethod
+    def _city(cls, v: object) -> object:  # "Mumbai" → slug; a city we don't cover → unset (locality decides)
+        return CITY_ALIASES.get(v.strip().lower()) if isinstance(v, str) else v
+
+    @field_validator("parking", mode="before")
+    @classmethod
+    def _parking(cls, v: object) -> object:
+        if isinstance(v, str):
+            t = v.lower()
+            return "both" if "car" in t and "bike" in t else "car" if "car" in t else "bike" if "bike" in t \
+                else "none" if t.strip() in ("no", "none", "no parking") else v
+        return v
+
+    @field_validator("tenant_pref", mode="before")
+    @classmethod
+    def _tenants(cls, v: object) -> object:
+        if isinstance(v, str):
+            t = v.lower()
+            return "bachelors" if t.startswith("bachelor") else "family" if t.startswith("famil") else \
+                "any" if t in ("anyone", "all", "both") else v
+        return v
+
 
 SYSTEM = (
     "You help a landlord in India create a rental listing by chat. Read the landlord's latest message and "
@@ -63,7 +89,8 @@ SYSTEM = (
     "in months ('2 months deposit'), set deposit_months, not deposit. 'Semi' = semi, 'fully furnished' = "
     "full. 'Bachelors also ok' / 'anyone' = tenant_pref any; 'family only' = family. 'Immediately' / "
     "'ready to move' = available_now. Dates are relative to today. Bangalore/Bengaluru = bangalore. "
-    "'Remove the gym' / 'no lift' means remove_amenities. Use `clear` ONLY for a field the landlord explicitly "
+    "'Remove the gym' / 'no lift' means remove_amenities. 'No pets' means pets false (likewise for other yes/no "
+    "fields); never use `clear` for that. Use `clear` ONLY for a field the landlord explicitly "
     "asks to delete (e.g. 'remove the maintenance amount'); otherwise leave `clear` empty. "
     "If the message answers the assistant's last question, read it as that answer (e.g. a bare '2' after "
     "'How many bedrooms?' is bhk 2). Ignore phone numbers, emails and links.\n" + UNTRUSTED_RULE
@@ -79,7 +106,7 @@ def _user(data: ListingUpdateInput) -> str:
 LISTING_UPDATE = register(
     Prompt(
         id="listing_update",
-        version=2,
+        version=3,
         system=SYSTEM,
         input=ListingUpdateInput,
         output=ListingUpdate,
