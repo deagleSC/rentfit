@@ -256,6 +256,8 @@ async def turn(state: SearchChatState, config: RunnableConfig) -> SearchChatStat
     # ---- resolve names, merge into the thread's filters
     upd, found, commute, notes = await resolve_names(tx, upd, prev)
     f, changes = merge(prev, upd, localities=found, commute=commute)
+    if f.city is None and ctx.get("home_city"):  # the profile's home city (backend plan §13 clarify)
+        f = f.model_copy(update={"city": ctx["home_city"]})
     if ctx.get("bbox"):
         f = f.model_copy(update={"bbox": ctx["bbox"], "locality_ids": [], "locality_names": []})
     await emit("filters", {"filters": f.model_dump(mode="json"), "chips": chips(f),
@@ -306,7 +308,9 @@ async def run_turn(tx: Tx, chat: dict[str, Any], message: str, emit: Emit, *, us
                    bbox: tuple[float, float, float, float] | None = None, remove: list[str] | None = None) -> None:
     """Run one turn and persist the thread's filters and results on `chats`."""
     clean = strip_contacts(message)[:1000] or ("Remove " + ", ".join(remove) if remove else "Show results")
-    ctx: dict[str, Any] = {"tx": tx, "emit": emit, "chat": chat, "bbox": bbox, "remove": remove}
+    profile = await tx.fetchone("select city from profiles where id = %s", (user_id,))
+    ctx: dict[str, Any] = {"tx": tx, "emit": emit, "chat": chat, "bbox": bbox, "remove": remove,
+                           "home_city": profile["city"] if profile else None}
     async with common.checkpointer(tx) as saver:
         graph = GRAPH.compile(checkpointer=saver)
         config: Any = {"configurable": {"thread_id": chat["thread_id"], "turn": ctx}}

@@ -6,6 +6,7 @@ import fs from "node:fs";
 const BUDGET_KB = {
   "@rentfit/tenant": { "/": 350, "/search/[chatId]": 350, "*": 400 },
   "@rentfit/landlord": { "*": 400 },
+  "@rentfit/marketing": { "*": 250 }, // static pages, no app code
 };
 
 const lines = fs.readFileSync(process.argv[2] ?? "build.log", "utf8").split("\n");

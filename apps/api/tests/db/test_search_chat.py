@@ -186,3 +186,10 @@ async def test_detail_shortlist_saved(db, api) -> None:  # type: ignore[no-untyp
     assert (await api.delete(f"/v1/tenant/saved-searches/{saved['id']}", headers=t)).status_code == 204
     assert (await api.get("/v1/tenant/saved-searches", headers=t)).json()["data"] == []
     assert (await api.get(f"/v1/listings/{lid}", headers=auth_header(await db.auth_user()))).status_code == 403
+
+
+async def test_home_city_skips_the_city_question(db, api) -> None:  # type: ignore[no-untyped-def]
+    t = await user(db, api, "tenant")
+    assert (await api.patch("/v1/me", json={"city": "mumbai"}, headers=t)).status_code == 200
+    r = await say(api, t, "2 bhk under 60k")
+    assert "question" not in r and r["filters"]["filters"]["city"] == "mumbai"
