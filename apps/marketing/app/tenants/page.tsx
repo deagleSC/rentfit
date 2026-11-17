@@ -15,7 +15,7 @@ export default function Tenants() {
     <>
       <Container className="pt-16 pb-12 sm:pt-24">
         <h1 className="display max-w-3xl text-5xl sm:text-6xl">Search the way you'd ask a friend who knows the city.</h1>
-        <p className="mt-6 max-w-xl text-lg text-muted-foreground">
+        <p className="mt-6 max-w-2xl text-lg text-muted-foreground">
           Start with a sentence. Narrow it down in conversation. Open a home, shortlist it, and message the landlord
           without giving out your number.
         </p>

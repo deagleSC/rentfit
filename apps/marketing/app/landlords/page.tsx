@@ -15,7 +15,7 @@ export default function Landlords() {
     <>
       <Container className="pt-16 pb-12 sm:pt-24">
         <h1 className="display max-w-3xl text-5xl sm:text-6xl">Describe the flat. Skip the form.</h1>
-        <p className="mt-6 max-w-xl text-lg text-muted-foreground">
+        <p className="mt-6 max-w-2xl text-lg text-muted-foreground">
           One message gets you most of a listing. RentFit asks for what's missing, you drop a pin and add photos, and
           you publish when it looks right.
         </p>

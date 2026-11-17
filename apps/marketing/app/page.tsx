@@ -18,11 +18,11 @@ export default function Home() {
   return (
     <>
       <Container className="pt-16 pb-12 sm:pt-24">
-        <h1 className="display max-w-4xl text-5xl sm:text-7xl">
+        <h1 className="display max-w-5xl text-5xl sm:text-6xl">
           Describe the flat you want. <span className="italic text-primary">RentFit does the searching.</span>
         </h1>
         <div className="mt-8 grid gap-8 sm:grid-cols-[1fr_auto] sm:items-end">
-          <p className="max-w-xl text-lg text-muted-foreground">
+          <p className="max-w-2xl text-lg text-muted-foreground">
             RentFit is rental search you talk to, for Bengaluru and Mumbai. Ask in English or Hinglish, refine as you
             go, and see where every price and distance came from.
           </p>
@@ -43,10 +43,10 @@ export default function Home() {
       </Container>
 
       <section className="border-y bg-muted/40">
-        <Container className="grid gap-10 py-20 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+        <Container className="grid gap-10 py-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
           <div>
             <h2 className="display text-4xl sm:text-5xl">You type. It listens.</h2>
-            <p className="mt-4 max-w-sm text-muted-foreground">
+            <p className="mt-4 max-w-md text-muted-foreground">
               Each message turns into filters you can see and remove. Follow-ups change the last search instead of
               starting over.
             </p>
@@ -66,10 +66,10 @@ export default function Home() {
         </Container>
       </section>
 
-      <Container className="grid items-center gap-10 py-20 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+      <Container className="grid items-center gap-10 py-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
         <div>
           <h2 className="display text-4xl sm:text-5xl">Listing a flat is one message.</h2>
-          <p className="mt-4 max-w-sm text-muted-foreground">
+          <p className="mt-4 max-w-md text-muted-foreground">
             Write it the way you'd say it on the phone. RentFit fills in the listing, asks for what's missing, and shows
             how your rent compares with similar homes nearby. Nothing goes live until you press Publish.
           </p>
