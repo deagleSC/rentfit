@@ -2,12 +2,12 @@ import "./globals.css";
 
 import { UiProvider } from "@rentfit/ui/blocks/theme-provider";
 import type { Metadata } from "next";
-import { Outfit } from "next/font/google";
+import { Inter } from "next/font/google";
 import type { ReactNode } from "react";
 
 import { Providers } from "./providers";
 
-const fontSans = Outfit({ subsets: ["latin"], variable: "--font-sans" });
+const fontSans = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
   title: { default: "RentFit: find a home", template: "%s · RentFit" },

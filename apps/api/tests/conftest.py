@@ -42,6 +42,7 @@ os.environ["LANGFUSE_PUBLIC_KEY"] = ""
 os.environ["LANGFUSE_SECRET_KEY"] = ""
 os.environ["SENTRY_DSN"] = ""
 os.environ["SUPABASE_SERVICE_KEY"] = ""  # tests use the in-memory photo store
+os.environ["EMBED_FUNCTION_URL"] = ""  # tests use the hashing embedder
 
 def _from_dotenv(key: str) -> str:
     env = Path(__file__).resolve().parents[1] / ".env"

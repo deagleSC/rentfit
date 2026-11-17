@@ -233,6 +233,8 @@ Rules as in Hirevine: events carry IDs only; side effects only in `step.run`; st
 | `notify-enquiry` | `enquiry/message_created` | in-app notification row | — |
 | `housekeeping` | cron `*/30 * * * *` | DB ping, resend stuck runs, purge expired `commute_cache` | — |
 
+**As built (Phase 2):** one event `listing/changed` (publish, resume, pause, let, and edits/pin moves of a published listing) instead of `listing/published` + `listing/updated`; the function deletes chunks when the listing is not published. Embeddings: Edge Function `embed` (gte-small via Supabase's built-in inference, 384 dims, free), shared secret in `x-embed-key`; `HashingEmbedder` when `EMBED_FUNCTION_URL` is unset (tests). Chunk 0 is a summary written from the fields; title + description follow (contacts stripped). Unchanged chunks keep their vectors.
+
 A published listing is visible to SQL filters and the map immediately; it joins vector/full-text results once `embed-listing` finishes (seconds). `JOB_DISPATCHER=inline` runs functions synchronously in-process (tests, e2e, seed), same code path.
 
 ---
@@ -330,15 +332,19 @@ parse_query ─▶ [clarify] ─▶ search ─▶ [relax] ─▶ enrich ─▶ r
 - **Median rents:** hand-set per locality and bhk in `seed_data/<city>/rents.csv` (no reliable open source); used only for fallback rent suggestions.
 - Attribution "© OpenStreetMap contributors" in the map and footer.
 
+**As built (Phase 2), notes:** `scripts/build_locality_notes.py` writes one `osm` note per locality from the counted facts (schools, hospitals, parks, supermarkets), the nearest metro, suburban rail station and hospital, and tech parks within 5 km, then embeds it. "Main roads crossing it" was dropped (no clean OSM signal at Voronoi-cell granularity). 230 notes in production.
+
 ### 14.2 Listings (`scripts/seed.py`, no model calls)
 
 1. Reference data from `seed_data/` (cities, localities, POIs, notes).
 2. Synthetic landlords: 10 accounts, synthetic tenants: 3 accounts (password logins for dev).
 3. Listings generated **in code**: random but plausible fields per locality (bhk distribution, rent around locality median ± 25%, furnishing, tenant preference, amenities), a random pin inside the locality polygon, and a description from varied templates (some Hinglish). Placeholder photos from a small committed set.
 4. Each listing is inserted through `apply_patches` + `transition(publish)`, then `embed-listing` runs inline.
-5. `--count` (default **50**, spread over the cities) and `--seed` for repeatable output.
+5. `--count` (default **100**, spread over the cities) and `--seed` for repeatable output.
 
-**Count:** 50 is the dev default. Evals and demos use a scratch DB seeded with `--count 600` (still free), because with 50 most localities have no listings, rent suggestions fall back to medians, and retrieval metrics are meaningless.
+**As built (Phase 2):** seed landlords/tenants are created once via the Supabase admin API (`SEED_PASSWORD`) and reused; a committed run first deletes the seed landlords' earlier listings. Placeholder photos are 6 committed WebP images (3–6 per listing). The publish's `embed-listing` job runs in the same transaction (`IndexNow` stands in for the dispatcher), so an unembedded listing is never committed. `--dry-run` builds, verifies and rolls back each listing (no photo uploads).
+
+**Count (decided in Phase 2):** 100 listings, committed in production, serve dev, demos and evals (600 was judged too many). With 100 over 230 localities many areas have no listings, so rent suggestions often fall back to medians; eval queries are written against what the 100 contain.
 
 ---
 
@@ -361,7 +367,7 @@ parse_query ─▶ [clarify] ─▶ search ─▶ [relax] ─▶ enrich ─▶ r
 | Listing extraction | 60 hand-written landlord descriptions with gold fields | field accuracy (≥ 95%) |
 | Listing edits by chat | 40 edit requests | same patch as hand edit (≥ 90%) |
 | Filter parsing | 150 queries incl. Hinglish + follow-ups | per-field accuracy (≥ 92%) |
-| Retrieval | 100 queries with relevant IDs, on the 600-listing scratch DB | nDCG@10, recall@10: vector vs hybrid vs hybrid+rerank |
+| Retrieval | 100 queries with relevant IDs, on the 100 seeded listings | nDCG@10, recall@10: vector vs hybrid vs hybrid+rerank |
 | Answers | 100 conversations | unsupported-claim rate (≤ 2%), citation validity |
 | Latency | `locust` | p50 / p95 per endpoint: fake model in dev, real model after deployment |
 
@@ -385,7 +391,7 @@ Each phase is done when its exit check passes. No dates. Each phase adds an **As
 | --- | --- | --- | --- |
 | 0 | Foundation | `apps/api` skeleton, config, envelope, `/health`; phase-0 migrations, `app` helpers, roles; auth (password + magic link JWTs), `/me`, profile trigger; `fetch_osm.py` + reference seed + `/cities` `/localities` `/pois`; LLM layer (wrapper, cache, budget, fallback, Langfuse, FakeModel, prompt lock, smoke test); Inngest client + dispatcher + `job_runs` + `housekeeping`; Dockerfile; CI (ruff, mypy, pytest, gitleaks, Inngest sync); Vercel deploy | RLS tests show two landlords cannot read each other's rows; `/cities` returns the city centers and `/localities` returns OSM polygons for each city; a test Inngest function retries a failed step without repeating finished ones; the budget blocks calls at the cap; smoke test records numbers for both models |
 | 1 | Landlord | Listing migrations, `ListingDraft`, patches, state machine, publish checks, listing CRUD with `If-Match`, photos (signed upload, 5 MB limit), `PUT /location` + PostGIS lookup, `listing_agent` (extract, ask missing, edit, locate, contact stripping) with SSE, checkpoint tables, rent suggestion | An API test creates a listing from one free-text message plus answers, edits it by chat, and the chat patch equals the form patch for the same change; publish rejects an incomplete listing with reasons; extraction eval ≥ 95% on the first 20 descriptions |
-| 2 | Search data | `retrieval` migration, Edge Function `embed`, `HashingEmbedder`, `embed-listing`, OSM locality notes + `embed-locality-notes`, `seed.py` with `--count` | `seed.py --count 50` and `--count 600` both finish with every listing published and embedded, with no model calls |
+| 2 | Search data | `retrieval` migration, Edge Function `embed`, `HashingEmbedder`, `embed-listing`, OSM locality notes + `embed-locality-notes`, `seed.py` with `--count` | `seed.py` (100) finishes with every listing published and embedded, with no model calls |
 | 3 | Tenant | Tenant migrations, `SearchFilters` + slang map, `hybrid.py`, `relax.py`, commute service (ORS + haversine) + cache, locality notes retrieval, rerank, `citations.py`, `search_agent` with SSE + ordinal follow-ups, `public_listings` + `/map/listings`, shortlists, saved searches, enquiries + `notify-enquiry` | An API test runs a 4-turn conversation (initial, "cheaper", "the 2nd one's commute?", "near metro instead") with correct filter patches, a reported relaxation, cards, pins and only valid citations; an enquiry reaches the landlord inbox, and no model input contains a phone number or email (asserted on the FakeModel log) |
 | 4 | Quality | All eval suites and datasets, `readme_results.py`, latency run (real model, deployed), trace review, RLS review, ADRs in `docs/adr/`, README | README results table is generated from reports; every target is met or the gap is written down with the next step |
 | 5 | Marketing | Backend support only if the marketing site needs it (e.g. public city/locality counts) | — |

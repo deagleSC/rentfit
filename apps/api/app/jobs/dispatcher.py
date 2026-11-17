@@ -31,6 +31,8 @@ log = logging.getLogger("rentfit.jobs")
 # job type → Inngest event name.
 EVENTS: dict[str, str] = {
     "selftest": "selftest/requested",
+    "embed-listing": "listing/changed",
+    "embed-locality-notes": "locality_notes/changed",
 }
 # Runs that wait rather than work (they sleep until a deadline); none yet.
 WAITING_TYPES: tuple[str, ...] = ()
@@ -106,6 +108,9 @@ class InlineDispatcher:
         event = event_for(type, run_id, refs)
 
         async def start() -> None:
+            if get_settings().app_env == "test":  # deterministic: tests see the job's effect at once
+                await self._run(event)
+                return
             task = asyncio.create_task(self._run(event))
             self._tasks.add(task)
             task.add_done_callback(self._tasks.discard)
