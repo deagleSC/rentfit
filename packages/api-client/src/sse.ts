@@ -1,4 +1,4 @@
-/** Server-sent events over a fetch Response (frontend plan §4: the interview's streamed turns). */
+/** Server-sent events over a fetch Response (frontend plan §5: the tenant search chat's streamed turns). */
 import { ApiError, toApiError } from "./errors";
 
 /**

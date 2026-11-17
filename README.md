@@ -6,6 +6,7 @@ follow-ups, and get grounded answers whose every number is checked against its s
 
 | App | URL |
 | --- | --- |
+| Website | https://rentfit-marketing.vercel.app |
 | Tenant | https://rentfit-tenant.vercel.app |
 | Landlord | https://rentfit-landlord.vercel.app |
 | API | https://rentfit-api.vercel.app (`/health`) |
@@ -111,6 +112,7 @@ endpoints above were measured without the model. Search latency will be measured
 apps/api          FastAPI, agents, jobs, migrations helpers, evals, tests
 apps/landlord     landlord app (:3000)
 apps/tenant       tenant app (:3001)
+apps/marketing    static website (:3002)
 packages/ui       shared components, map (MapLibre), theme
 packages/api-client  typed client generated from the API's OpenAPI, SSE reader
 supabase/         migrations, Edge Function `embed`
@@ -154,7 +156,8 @@ uv run python -m scripts.seed                  # 100 template listings (no model
 
 ## Deployment
 
-Three Vercel projects (`rentfit-api`, `rentfit-landlord`, `rentfit-tenant`) deploy from `main`.
+Four Vercel projects (`rentfit-api`, `rentfit-landlord`, `rentfit-tenant`, `rentfit-marketing`) deploy
+from `main`.
 After each API deploy, CI re-registers the Inngest functions. Database migrations are applied with
 `supabase db push`.
 

@@ -15,7 +15,7 @@ import { toast } from "sonner";
 
 import { api, useCities, useMe } from "@/lib/api";
 
-/** Profile: name, home city (default for searches) and a private phone number. */
+/** Profile: name and home city (where a search starts when you don't name a city). */
 export default function AccountPage() {
   const me = useMe();
   const cities = useCities();
@@ -23,7 +23,7 @@ export default function AccountPage() {
   const [city, setCity] = useState<string | undefined>();
 
   const save = useMutation({
-    mutationFn: (body: { name?: string; city?: string | null; phone?: string | null }) =>
+    mutationFn: (body: { name?: string; city?: string | null }) =>
       unwrap(api.PATCH("/v1/me", { body })),
     onSuccess: (data) => {
       queryClient.setQueryData(qk.me(), data);
@@ -38,17 +38,15 @@ export default function AccountPage() {
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    const phone = String(form.get("phone") ?? "").replace(/\s/g, "");
     save.mutate({
       name: String(form.get("name") ?? "").trim(),
       ...(city !== undefined ? { city } : {}),
-      ...(phone ? { phone } : {}),
     });
   }
 
   return (
     <>
-      <PageHeader title="Account" description="Your profile." />
+      <PageHeader title="Account" description="Your name and the city your searches start in." />
       <Card className="max-w-xl">
         <form onSubmit={onSubmit}>
           <CardHeader>
@@ -74,20 +72,7 @@ export default function AccountPage() {
                     ))}
                   </SelectContent>
                 </Select>
-                <FieldDescription>Searches start in this city.</FieldDescription>
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="phone">Phone</FieldLabel>
-                <Input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  inputMode="tel"
-                  placeholder={me.data.has_phone ? "Saved. Enter a new number to change it" : "+91 98765 43210"}
-                  pattern="^\+91\s?[6-9][0-9\s]{9,12}$"
-                  className="sm:max-w-64"
-                />
-                <FieldDescription>Private. Never shown to landlords or used by the AI.</FieldDescription>
+                <FieldDescription>Used when a search doesn't name a city.</FieldDescription>
               </Field>
               {save.isError ? <p className="text-sm text-destructive">{messageFor(save.error)}</p> : null}
             </FieldGroup>

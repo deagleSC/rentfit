@@ -123,6 +123,10 @@ Static pages: landing, for landlords, for tenants, privacy/terms. Links to the t
 
 ---
 
+**As built (Phase 5):** static Next.js site (`apps/marketing`, :3002) with landing, tenants, landlords, privacy and terms pages, and a fourth Vercel project. The copy was written fresh for v2 rather than reused from v1, and claims only what ships: two cities, sample listings, no listing verification, contacts removed from messages. The product picture is an HTML mock of a real search exchange, not screenshots. Every page passes axe; the theme's `--primary` was darkened slightly for 4.5:1 text contrast.
+
+---
+
 ## 10. Testing
 
 | Layer | Covers |
