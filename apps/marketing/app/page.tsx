@@ -1,93 +1,100 @@
-import { Button } from "@rentfit/ui/components/button";
-import { ArrowRight, BadgeCheck, Languages, MapPinned, MessagesSquare, Route, ShieldCheck } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
-import { ChatMock } from "@/components/chat-mock";
 import { LANDLORD_APP, TENANT_APP } from "@/components/links";
-import { Feature, Section } from "@/components/site";
+import { Container, Rows, Shot } from "@/components/site";
+import listingShot from "@/public/shots/listing.png";
+import searchShot from "@/public/shots/search.png";
+
+const HEARD: { say: string; hears: string[] }[] = [
+  { say: "2 bhk in Koramangala under 40k, near metro", hears: ["Koramangala", "2 BHK", "Up to ₹40k", "Metro ≤ 1 km"] },
+  { say: "Bengaluru mein 1 bhk chahiye, 25 hazaar tak, bachelor hu", hears: ["in Bengaluru", "1 BHK", "Up to ₹25k", "Bachelors OK"] },
+  { say: "thoda sasta", hears: ["Up to ₹36k (was ₹40k)", "everything else kept"] },
+  { say: "what about HSR instead", hears: ["HSR Layout", "replaces Koramangala"] },
+  { say: "the 2nd one's commute?", hears: ["answers about result 2", "no new search"] },
+];
 
 export default function Home() {
   return (
     <>
-      <section className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 sm:py-20 lg:grid-cols-[1.1fr_1fr]">
-        <div className="space-y-6">
-          <p className="text-sm font-medium text-primary">Bengaluru and Mumbai</p>
-          <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
-            Describe the home you want. Get answers you can check.
-          </h1>
+      <Container className="pt-16 pb-12 sm:pt-24">
+        <h1 className="display max-w-4xl text-5xl sm:text-7xl">
+          Describe the flat you want. <span className="italic text-primary">RentFit does the searching.</span>
+        </h1>
+        <div className="mt-8 grid gap-8 sm:grid-cols-[1fr_auto] sm:items-end">
           <p className="max-w-xl text-lg text-muted-foreground">
-            Search rentals by chat, in English or Hinglish. Refine with follow-ups like “thoda sasta” or “near metro
-            instead”, and see where every price and distance comes from.
+            RentFit is rental search you talk to, for Bengaluru and Mumbai. Ask in English or Hinglish, refine as you
+            go, and see where every price and distance came from.
           </p>
-          <div className="flex flex-wrap gap-3">
-            <Button asChild size="lg">
-              <a href={TENANT_APP}>Find a home <ArrowRight /></a>
-            </Button>
-            <Button asChild size="lg" variant="outline">
-              <a href={LANDLORD_APP}>List your flat</a>
-            </Button>
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm font-medium">
+            <a href={TENANT_APP} className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2.5 text-primary-foreground hover:bg-primary/90">
+              Start a search <ArrowRight className="size-4" />
+            </a>
+            <a href={LANDLORD_APP} className="text-foreground underline-offset-4 hover:underline">I have a flat to rent</a>
           </div>
         </div>
-        <ChatMock />
-      </section>
+      </Container>
 
-      <Section eyebrow="For tenants" title="A search that remembers what you said"
-               intro="Start broad and narrow down in conversation. RentFit keeps your filters as chips you can remove, and shows every result on a map.">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <Feature icon={<Languages />} title="Your words, not filters">
-            “2 bhk Indiranagar 45k tak, family” works. So does “within 30 minutes of Manyata Tech Park”.
-          </Feature>
-          <Feature icon={<MessagesSquare />} title="Follow-ups that stick">
-            “Cheaper”, “what about HSR instead”, or “the 2nd one's commute?” build on your last search.
-          </Feature>
-          <Feature icon={<BadgeCheck />} title="Facts with sources">
-            Each claim in an answer links to the listing or area note it came from. A number that isn't in the source
-            is never shown.
-          </Feature>
-          <Feature icon={<MapPinned />} title="Honest when it's thin">
-            If too few homes match, RentFit widens one thing at a time, like the budget or nearby areas, and tells you
-            what it changed.
-          </Feature>
-          <Feature icon={<Route />} title="Commute and area notes">
-            See how far the nearest metro is, estimated commute times, and what's in the area, from OpenStreetMap.
-          </Feature>
-          <Feature icon={<ShieldCheck />} title="Your number stays private">
-            Message landlords inside RentFit. Phone numbers and emails are removed from messages.
-          </Feature>
-        </div>
-        <Link href="/tenants" className="mt-6 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline">
-          How searching works <ArrowRight className="size-4" />
-        </Link>
-      </Section>
+      <Container className="pb-20">
+        <Shot src={searchShot} alt="RentFit search: filter chips, a reply with numbered sources, two listing cards and their pins on a map of Bengaluru" priority />
+        <p className="mt-3 text-sm text-muted-foreground">
+          A real search. When too few homes match, RentFit loosens one thing at a time and says what it changed.
+        </p>
+      </Container>
 
       <section className="border-y bg-muted/40">
-        <Section eyebrow="For landlords" title="Write one message. Get a listing."
-                 intro="Describe the flat the way you'd tell a friend. RentFit fills in the listing, asks only for what's missing, and checks your rent against nearby homes.">
-          <div className="flex flex-wrap gap-3">
-            <Button asChild><a href={LANDLORD_APP}>List your flat</a></Button>
-            <Button asChild variant="outline"><Link href="/landlords">How listing works</Link></Button>
+        <Container className="grid gap-10 py-20 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+          <div>
+            <h2 className="display text-4xl sm:text-5xl">You type. It listens.</h2>
+            <p className="mt-4 max-w-sm text-muted-foreground">
+              Each message turns into filters you can see and remove. Follow-ups change the last search instead of
+              starting over.
+            </p>
           </div>
-        </Section>
+          <ol className="divide-y border-y bg-background">
+            {HEARD.map((h) => (
+              <li key={h.say} className="grid gap-3 px-4 py-4 sm:grid-cols-2 sm:gap-6">
+                <p className="font-medium">“{h.say}”</p>
+                <p className="flex flex-wrap gap-1.5">
+                  {h.hears.map((x) => (
+                    <span key={x} className="rounded border px-2 py-0.5 text-sm text-muted-foreground">{x}</span>
+                  ))}
+                </p>
+              </li>
+            ))}
+          </ol>
+        </Container>
       </section>
 
-      <Section title="Questions" className="mx-auto max-w-3xl px-4 py-16 sm:py-20">
-        <dl className="space-y-6">
-          {FAQ.map(([q, a]) => (
-            <div key={q}>
-              <dt className="font-medium">{q}</dt>
-              <dd className="mt-1 text-muted-foreground">{a}</dd>
-            </div>
-          ))}
-        </dl>
-      </Section>
+      <Container className="grid items-center gap-10 py-20 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+        <div>
+          <h2 className="display text-4xl sm:text-5xl">Listing a flat is one message.</h2>
+          <p className="mt-4 max-w-sm text-muted-foreground">
+            Write it the way you'd say it on the phone. RentFit fills in the listing, asks for what's missing, and shows
+            how your rent compares with similar homes nearby. Nothing goes live until you press Publish.
+          </p>
+          <Link href="/landlords" className="mt-6 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline">
+            How listing works <ArrowRight className="size-4" />
+          </Link>
+        </div>
+        <Shot src={listingShot} alt="RentFit landlord app: a one-message description beside the listing preview it produced" />
+      </Container>
+
+      <section className="border-t">
+        <Container className="py-20">
+          <h2 className="display text-4xl sm:text-5xl">Plainly</h2>
+          <div className="mt-10">
+            <Rows items={[
+              { term: "Where it works", detail: "Bengaluru and Mumbai. Area names come from OpenStreetMap, so the names people use work." },
+              { term: "What it costs", detail: "Nothing, for tenants or landlords. You need an account, so messages stay between real people." },
+              { term: "The listings", detail: "Sample data for now. RentFit is new; try the search and the landlord tools with it." },
+              { term: "What it doesn't check", detail: "RentFit doesn't inspect flats or verify landlords. Visit before you pay anything." },
+              { term: "Your number", detail: "Never shared. Phone numbers and emails are removed from every message, on both sides." },
+              { term: "Where AI fits", detail: "A language model reads your message and writes the reply. Search, distances and the check that every number matches its source are ordinary code." },
+            ]} />
+          </div>
+        </Container>
+      </section>
     </>
   );
 }
-
-const FAQ: [string, string][] = [
-  ["Which cities does RentFit cover?", "Bengaluru and Mumbai. Areas come from OpenStreetMap, so you can search by the locality names people actually use."],
-  ["Is it free?", "Yes, for tenants and landlords. You need an account to search or list, so enquiries stay between real people."],
-  ["Are the listings real?", "Not yet. RentFit is new, and the listings you see today are sample data, so you can try the search and the landlord tools."],
-  ["Does RentFit verify listings?", "No. RentFit checks that a listing is complete and that its pin is in the city, but it doesn't inspect flats or verify landlords. Visit before you pay anything."],
-  ["How is AI used?", "A language model reads your message and writes a short reply. Everything else is plain code: filters, search, distances, and checking each claim against its source."],
-];
