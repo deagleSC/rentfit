@@ -130,6 +130,7 @@ pnpm install
 cd apps/api && uv sync && uv run uvicorn app.main:app --reload --port 8000   # API
 pnpm --filter @rentfit/landlord dev                                            # :3000
 pnpm --filter @rentfit/tenant dev                                              # :3001
+pnpm --filter @rentfit/marketing dev                                           # :3002 (static)
 ```
 
 In dev, `LLM_PROVIDER=fake` makes every prompt answer from deterministic patterns (no network), and
@@ -160,6 +161,14 @@ Four Vercel projects (`rentfit-api`, `rentfit-landlord`, `rentfit-tenant`, `rent
 from `main`.
 After each API deploy, CI re-registers the Inngest functions. Database migrations are applied with
 `supabase db push`.
+
+## Not in v1
+
+Tracked as issues: [admin app for listing moderation](https://github.com/deagleSC/rentfit/issues/1),
+[saved-search alerts](https://github.com/deagleSC/rentfit/issues/2),
+[WhatsApp search bot](https://github.com/deagleSC/rentfit/issues/3) and
+[Hindi voice input](https://github.com/deagleSC/rentfit/issues/4). Kolkata was dropped because its
+OpenStreetMap data could not be fetched reliably.
 
 ## Data and attribution
 
