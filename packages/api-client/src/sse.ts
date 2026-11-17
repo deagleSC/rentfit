@@ -7,6 +7,14 @@ import { ApiError, toApiError } from "./errors";
  * Comment lines and other SSE fields are ignored; an event may span several network chunks.
  */
 export async function readSSE<T = unknown>(response: Response, onEvent: (event: T) => void): Promise<void> {
+  return readSSEEvents(response, (_name, data) => onEvent(data as T));
+}
+
+/** Like `readSSE`, with each event's `event:` name ("message" when absent). */
+export async function readSSEEvents(
+  response: Response,
+  onEvent: (name: string, data: unknown) => void,
+): Promise<void> {
   if (!response.ok) {
     const body: unknown = await response.json().catch(() => null);
     throw toApiError(response.status, body);
@@ -16,12 +24,13 @@ export async function readSSE<T = unknown>(response: Response, onEvent: (event: 
   const decoder = new TextDecoder();
   let buffer = "";
   const flush = (block: string) => {
-    const data = block
-      .split("\n")
+    const lines = block.split("\n");
+    const name = lines.find((l) => l.startsWith("event:"))?.slice(6).trim() || "message";
+    const data = lines
       .filter((l) => l.startsWith("data:"))
       .map((l) => l.slice(5).replace(/^ /, ""))
       .join("\n");
-    if (data) onEvent(JSON.parse(data) as T);
+    if (data) onEvent(name, JSON.parse(data));
   };
   for (;;) {
     const { done, value } = await reader.read();

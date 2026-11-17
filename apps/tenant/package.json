@@ -6,7 +6,8 @@
     "build": "next build",
     "start": "next start -p 3001",
     "typecheck": "tsc --noEmit -p tsconfig.typecheck.json",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "vitest run"
   },
   "dependencies": {
     "@rentfit/api-client": "workspace:^",
@@ -29,6 +30,7 @@
     "eslint": "9",
     "typescript": "5",
     "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4"
+    "tailwindcss": "^4",
+    "vitest": "^5.1.0"
   }
 }

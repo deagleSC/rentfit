@@ -66,10 +66,10 @@ async def test_four_turn_search(db, api, model_log) -> None:  # type: ignore[no-
     assert asked["city"] == "bangalore" and asked["bhk"] == [2] and asked["rent_max"] == 40000
     assert asked["locality_names"] == ["Koramangala"]
     f = r["filters"]["filters"]
-    if f != asked:
-        assert r["relaxed"]["steps"] and f["rent_max"] >= 40000 and "Koramangala" in f["locality_names"]
+    assert f == asked  # the thread keeps what the tenant asked for; relaxing is reported, not saved
     cards = r["cards"]["cards"]
-    assert len(cards) >= 2 and all(c["bhk"] == 2 and c["rent"] <= f["rent_max"] for c in cards)
+    budget = 44000 if any("budget" in s for s in r.get("relaxed", {}).get("steps", [])) else 40000
+    assert len(cards) >= 2 and all(c["bhk"] == 2 and c["rent"] <= budget for c in cards)
     assert {p["id"] for p in r["pins"]["pins"]} >= {c["id"] for c in cards}
     listing_ids = {c["id"] for c in cards}
     for claim in r["citations"]["claims"]:  # every surviving citation points at something shown
@@ -77,12 +77,12 @@ async def test_four_turn_search(db, api, model_log) -> None:  # type: ignore[no-
             assert ref["kind"] == "note" or ref["id"] in listing_ids
 
     # 2. "cheaper": a patch on the thread's filters, not a new search
-    before = f["rent_max"]
     r = await say(api, t, "thoda sasta", chat_id=chat_id)
-    assert [c["field"] for c in r["first_filters"]["changes"]] == ["rent_max"]
-    assert r["first_filters"]["filters"]["rent_max"] == round(before * 0.9, -2)
+    assert [c["field"] for c in r["filters"]["changes"]] == ["rent_max"]
     f = r["filters"]["filters"]
-    assert f["bhk"] == [2] and "Koramangala" in f["locality_names"]
+    assert f["rent_max"] == 36000 and f["bhk"] == [2] and f["locality_names"] == ["Koramangala"]
+    assert not any("budget" in s for s in r.get("relaxed", {}).get("steps", []))  # "cheaper" is not undone
+    assert all(c["rent"] <= 36000 for c in r["cards"]["cards"])
     shown = r["cards"]["cards"]
 
     # 3. ordinal follow-up answers about the 2nd result without searching again
@@ -93,8 +93,10 @@ async def test_four_turn_search(db, api, model_log) -> None:  # type: ignore[no-
     # 4. near metro instead
     r = await say(api, t, "near metro instead", chat_id=chat_id)
     f = r["filters"]["filters"]
-    assert r["first_filters"]["filters"]["near_metro_m"] == 1000 and f["near_metro_m"] in (1000, 2000)
-    assert all((c["metro"] or {}).get("metres", 99999) <= f["near_metro_m"] for c in r["cards"]["cards"])
+    assert f["near_metro_m"] == 1000
+    widened = any("metro distance" in s for s in r.get("relaxed", {}).get("steps", []))
+    limit = 2000 if widened else 1000
+    assert all((c["metro"] or {}).get("metres", 99999) <= limit for c in r["cards"]["cards"])
 
     # History replays the thread
     h = (await api.get(f"/v1/tenant/chats/{chat_id}", headers=t)).json()["data"]

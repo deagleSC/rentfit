@@ -15,4 +15,4 @@ export {
   type Processing,
   type ProcessingStatus,
 } from "./processing";
-export { readSSE } from "./sse";
+export { readSSE, readSSEEvents } from "./sse";

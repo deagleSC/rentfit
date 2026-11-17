@@ -63,6 +63,8 @@ def test_relax_ladder_order() -> None:
         last.commute.max_minutes == 40 and last.near_metro_m == 2000 and last.amenities == ["gym"]
     assert got[0][1].message == "raised the budget to ₹33,000"
     assert steps(SearchFilters(), lambda ids: []) == []
+    kept = steps(f, lambda ids: [(HSR, "HSR Layout")], skip={"rent_max", "near_metro_m"})
+    assert [r.step for _, r in kept] == ["adjacent", "commute", "amenity"] and kept[-1][0].rent_max == 30000
 
 
 def test_rrf_and_text_query() -> None:

@@ -197,7 +197,9 @@ def chips(f: SearchFilters) -> list[dict[str, str]]:
     """Removable filter chips: {field, label}. Removing one clears that field."""
     out: list[dict[str, str]] = []
     if f.locality_names:
-        out.append({"field": "locality_ids", "label": ", ".join(f.locality_names)})
+        names = f.locality_names
+        label = ", ".join(names) if len(names) <= 3 else f"{', '.join(names[:2])} +{len(names) - 2} more"
+        out.append({"field": "locality_ids", "label": label})
     if f.bbox:
         out.append({"field": "bbox", "label": "Map area"})
     if f.bhk:

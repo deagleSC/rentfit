@@ -311,6 +311,14 @@ parse_query ─▶ [clarify] ─▶ search ─▶ [relax] ─▶ enrich ─▶ r
 
 `ask_about_result` ("the 2nd one's commute?") resolves ordinal references against `chats.last_result_ids`, skips search, and answers from enrich data.
 
+**As built (Phase 3):**
+- **Two model calls per searching turn** (`search_parse`, `search_respond`); the separate `rerank` prompt was dropped to stay inside the 300/day budget. Ranking is RRF relevance blended with soft-preference matches (`0.6 × relevance + 0.4 × soft`) in code.
+- **Relaxing never rewrites the thread:** the chat keeps the tenant's own filters (the chips); each turn reports what it loosened. A field the tenant just refined in this message ("cheaper", "near metro instead") is never loosened back.
+- `respond` returns `{intro, claims[{text, cites}]}`; `citations.py` keeps a claim only if every number in it appears in the cited listing or note (refs `L1..`, `N1..`). The answer is structured, so SSE sends `token` once with the intro, not token by token.
+- `ask_about_result` resolves "the 2nd one" against `chats.last_result_ids` and answers from that listing's card (commute, metro, note) without searching.
+- `public_listings` is a `security_invoker` view; the map/search queries are SQL in Python rather than a `map_listings` SQL function. Map pins are not clustered yet (≤ 20 search pins, ≤ 50 per city when browsing).
+- Locality lookup adds a prefix match ("HSR" → HSR Layout); a budget under ₹1,000 is ignored as nonsense.
+
 ### 13.1 Commute (`services/commute.py`)
 
 - `OrsProvider`: OpenRouteService **Matrix API**, one request per search (up to 20 listing origins × 1 POI), profiles `driving-car`, `cycling-regular`, `foot-walking`. Free tier ~500 matrix requests/day and 40/min: verify current limits in phase 3. Key in `ORS_API_KEY`.

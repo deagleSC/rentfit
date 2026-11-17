@@ -4,14 +4,17 @@ import { DashboardLayout } from "@rentfit/ui/blocks/dashboard-layout";
 import type { NavItem } from "@rentfit/ui/blocks/nav-main";
 import { NavUser } from "@rentfit/ui/blocks/nav-user";
 import { useQueryClient } from "@tanstack/react-query";
-import { Building2 } from "lucide-react";
+import { Building2, MessageSquare } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 
 import { useMe } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 
-const nav: NavItem[] = [{ title: "Listings", url: "/", icon: Building2 }];
+const nav: NavItem[] = [
+  { title: "Listings", url: "/", icon: Building2 },
+  { title: "Enquiries", url: "/enquiries", icon: MessageSquare },
+];
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   const router = useRouter();

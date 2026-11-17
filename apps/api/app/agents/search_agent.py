@@ -23,7 +23,7 @@ from psycopg.types.json import Jsonb
 from app.agents import common
 from app.core.db import Tx
 from app.domain import relax as relax_mod
-from app.domain.filters import Commute, SearchFilters, SearchUpdate, apply_slang, chips, diff, merge
+from app.domain.filters import Commute, SearchFilters, SearchUpdate, apply_slang, chips, merge
 from app.llm import tracing
 from app.llm.prompts.search import NoteFacts, RespondInput, RespondOutput, ResultFacts, SearchParseInput
 from app.llm.wrapper import deadline_in
@@ -111,7 +111,8 @@ async def respond(tx: Tx, emit: Emit, request: str, f: SearchFilters, relaxed: l
     ref_ids: dict[str, dict[str, str]] = {r: {"kind": "listing", "id": str(c.id), "label": f"{c.bhk} BHK, {c.locality}"}
                                           for r, c in refs.items()}
     for n, row in zip(notes, notes_rows, strict=True):
-        ref_ids[n.ref] = {"kind": "note", "id": str(row["id"]), "label": f"About {row['locality']}"}
+        ref_ids[n.ref] = {"kind": "note", "id": str(row["id"]), "label": f"About {row['locality']}",
+                          "text": row["content"]}
     claims = [{"text": c.text, "refs": [ref_ids[r] for r in c.cites]} for c in checked.kept]
     await emit("token", {"text": out.intro})
     await emit("citations", {"claims": claims})
@@ -230,26 +231,25 @@ async def turn(state: SearchChatState, config: RunnableConfig) -> SearchChatStat
 
     hits, com = await run(f)
     relaxed: list[str] = []
+    searched = f  # what produced the results; the thread keeps the tenant's own filters (`f`)
     if len(hits) < relax_mod.MIN_RESULTS:
         near = await adjacent(tx, f.locality_ids) if f.locality_ids else []
-        for loosened, step in relax_mod.steps(f, lambda _ids: near):
+        # A refinement in this message ("cheaper", "near metro instead") is never undone by relaxing.
+        refined = {c.field for c in changes if c.before not in (None, [], {})}
+        for loosened, step in relax_mod.steps(f, lambda _ids: near, skip=refined):
             more, more_com = await run(loosened)
             relaxed.append(step.message)
             if len(more) > len(hits):
-                hits, com, f = more, more_com, loosened
+                hits, com, searched = more, more_com, loosened
             if len(hits) >= relax_mod.MIN_RESULTS:
                 break
         if relaxed:
             await emit("relaxed", {"steps": relaxed, "count": len(hits)})
-            # The thread continues from what was actually searched, so "cheaper" builds on the shown results.
-            chat["last_filters"] = f.model_dump(mode="json")
-            await emit("filters", {"filters": chat["last_filters"], "chips": chips(f),
-                                   "changes": [c.model_dump(mode="json") for c in diff(prev, f)]})
 
     # ---- rank: text relevance blended with soft preferences
     ids = [h.id for h in hits]
-    soft = await res.soft_scores(tx, f.soft, ids)
-    score = {h.id: (0.6 * h.score + 0.4 * soft.get(h.id, 0.0)) if f.soft else h.score for h in hits}
+    soft = await res.soft_scores(tx, searched.soft, ids)
+    score = {h.id: (0.6 * h.score + 0.4 * soft.get(h.id, 0.0)) if searched.soft else h.score for h in hits}
     ranked = sorted(ids, key=lambda i: -score[i])[:RESULTS_KEPT]
     chat["last_result_ids"] = ranked
 
@@ -257,7 +257,7 @@ async def turn(state: SearchChatState, config: RunnableConfig) -> SearchChatStat
     rows = await res.card_rows(tx, ranked[:CARDS])
     shown = await res.cards(tx, ranked[:CARDS], com, rows)
     await emit("cards", {"cards": [c.model_dump(mode="json") for c in shown]})
-    reply = await respond(tx, emit, message, f, relaxed, len(hits), shown,
+    reply = await respond(tx, emit, message, searched, relaxed, len(hits), shown,
                           {i: r["description"] or "" for i, r in rows.items()})
     if notes:
         reply["intro"] = " ".join([*notes, reply["intro"]])

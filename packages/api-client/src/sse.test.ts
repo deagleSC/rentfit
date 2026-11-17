@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { ApiError } from "./errors";
-import { readSSE } from "./sse";
+import { readSSE, readSSEEvents } from "./sse";
 
 function streamed(chunks: string[], init: ResponseInit = {}): Response {
   const enc = new TextEncoder();
@@ -28,5 +28,15 @@ describe("readSSE", () => {
     const res = new Response(JSON.stringify({ error: { code: "stale_turn", message: "Reload." } }), { status: 409 });
     await expect(readSSE(res, () => undefined)).rejects.toMatchObject({ code: "stale_turn", status: 409 });
     await expect(readSSE(new Response("nope", { status: 500 }), () => undefined)).rejects.toBeInstanceOf(ApiError);
+  });
+});
+
+describe("readSSEEvents", () => {
+  it("passes event names, defaulting to message", async () => {
+    const body = 'event: filters\ndata: {"a":1}\n\ndata: {"b":2}\n\nevent: done\ndata: {"chat_id":"x"}\n\n';
+    const res = new Response(new Blob([body]).stream(), { status: 200 });
+    const got: [string, unknown][] = [];
+    await readSSEEvents(res, (n, d) => got.push([n, d]));
+    expect(got).toEqual([["filters", { a: 1 }], ["message", { b: 2 }], ["done", { chat_id: "x" }]]);
   });
 });
