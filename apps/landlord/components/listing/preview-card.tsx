@@ -28,7 +28,7 @@ export function PreviewCard({
     ["maintenance", "Maintenance", listing.maintenance != null ? `${inr(listing.maintenance)} / month` : null],
     ["furnishing", "Furnishing", listing.furnishing ? FURNISHING[listing.furnishing] ?? listing.furnishing : null],
     ["tenant_pref", "Tenants", listing.tenant_pref ? TENANTS[listing.tenant_pref] ?? listing.tenant_pref : null],
-    ["available_from", "Available from", listing.available_from ?? null],
+    ["available_from", "Available from", listing.available_from ? availableLabel(listing.available_from) : null],
     ["sqft", "Area", listing.sqft ? `${listing.sqft} sq ft` : null],
     ["floor", "Floor", listing.floor != null ? `${listing.floor}${listing.total_floors ? ` of ${listing.total_floors}` : ""}` : null],
     ["locality_id", "Area name", localityName],
@@ -99,4 +99,12 @@ function Checklist({ missing, photos }: { missing: string[]; photos: number }) {
       </ul>
     </div>
   );
+}
+
+/** "Now" for today or earlier, else "1 Dec 2026". */
+function availableLabel(iso: string): string {
+  const d = new Date(`${iso}T00:00:00`);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return d <= today ? "Now" : d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
 }

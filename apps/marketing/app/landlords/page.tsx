@@ -1,52 +1,41 @@
-import { Button } from "@rentfit/ui/components/button";
-import { Camera, IndianRupee, MapPin, MessageSquare, MessagesSquare, PauseCircle } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import type { Metadata } from "next";
 
 import { LANDLORD_APP } from "@/components/links";
-import { Feature, Section, Steps } from "@/components/site";
+import { Container, Rows, Shot } from "@/components/site";
+import listingShot from "@/public/shots/listing.png";
 
 export const metadata: Metadata = {
-  title: "For landlords",
+  title: "Listing",
   description: "List a flat in Bengaluru or Mumbai by describing it in chat. Free.",
 };
 
 export default function Landlords() {
   return (
     <>
-      <Section eyebrow="For landlords" title="List your flat by describing it"
-               intro="No long form to start with. Write what you'd say on the phone and RentFit builds the listing as you go."
-               className="mx-auto max-w-6xl px-4 pt-14 pb-8 sm:pt-20">
-        <Button asChild size="lg"><a href={LANDLORD_APP}>List your flat</a></Button>
-      </Section>
-      <Section title="From message to published" className="mx-auto max-w-6xl px-4 py-10">
-        <Steps items={[
-          { title: "Describe it", body: "“2BHK in Koramangala, 35k rent, 2 months deposit, semi furnished, family only.” A preview fills in beside the chat, and RentFit asks for anything still missing." },
-          { title: "Pin and add photos", body: "Drop a pin on the map and add 3 to 15 photos; they're resized on your phone before upload. If the pin and the area you named disagree, RentFit asks which is right." },
-          { title: "Check and publish", body: "Compare your rent with similar homes nearby, fix anything in chat or in the form, and publish. Pause or mark it as let any time." },
+      <Container className="pt-16 pb-12 sm:pt-24">
+        <h1 className="display max-w-3xl text-5xl sm:text-6xl">Describe the flat. Skip the form.</h1>
+        <p className="mt-6 max-w-xl text-lg text-muted-foreground">
+          One message gets you most of a listing. RentFit asks for what's missing, you drop a pin and add photos, and
+          you publish when it looks right.
+        </p>
+        <a href={LANDLORD_APP} className="mt-8 inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90">
+          List your flat <ArrowRight className="size-4" />
+        </a>
+      </Container>
+      <Container className="pb-16">
+        <Shot src={listingShot} alt="A landlord's one-message description beside the listing preview RentFit filled in" priority />
+      </Container>
+      <Container className="pb-24">
+        <Rows items={[
+          { term: "One message to start", detail: "“2BHK in Indiranagar, rent 42k, 3 months deposit, semi furnished, bachelors also ok.” The preview fills in and changed fields are highlighted. Then it asks for the next thing it needs." },
+          { term: "Edits in plain words", detail: "“Bachelors also ok”, “make deposit 2 months”, “remove the gym”. Chat edits and the edit form change the listing the same way." },
+          { term: "Pin and photos", detail: "Drop a pin; it decides the locality, so tenants searching that area find you. If it disagrees with the area you named, RentFit asks which is right. Add 3 to 15 photos, resized on your phone before upload." },
+          { term: "A rent check", detail: "See the range for similar homes nearby, with the listings it's based on. If there aren't enough, it says the number is an estimate." },
+          { term: "Enquiries in one inbox", detail: "Tenants message you inside RentFit and you reply there. Phone numbers and emails are removed from messages on both sides." },
+          { term: "You decide what's live", detail: "Nothing is published until you press Publish. Pause, resume, or mark it as let whenever you like." },
         ]} />
-      </Section>
-      <Section title="What you get" className="mx-auto max-w-6xl px-4 py-10 pb-20">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <Feature icon={<MessagesSquare />} title="Edits in plain words">
-            “Bachelors also ok”, “make deposit 2 months”, “remove the gym”. Each change shows in the preview before you publish.
-          </Feature>
-          <Feature icon={<IndianRupee />} title="A rent check">
-            See the range for comparable homes within a few kilometres, with the listings it's based on. When there aren't enough, it says it's an estimate.
-          </Feature>
-          <Feature icon={<MapPin />} title="The right area">
-            The pin decides the locality, so tenants searching for that area find you.
-          </Feature>
-          <Feature icon={<Camera />} title="Photos without fuss">
-            Upload straight from your phone. Photos are resized before upload.
-          </Feature>
-          <Feature icon={<MessageSquare />} title="Enquiries in one inbox">
-            Tenants message you inside RentFit and you reply there. Contact details are removed from messages on both sides.
-          </Feature>
-          <Feature icon={<PauseCircle />} title="You stay in control">
-            Nothing is published until you press Publish. Pause a listing, resume it, or mark it as let.
-          </Feature>
-        </div>
-      </Section>
+      </Container>
     </>
   );
 }
