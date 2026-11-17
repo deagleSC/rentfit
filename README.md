@@ -6,7 +6,7 @@ follow-ups, and get grounded answers whose every number is checked against its s
 
 | App | URL |
 | --- | --- |
-| Website | https://rentfit-marketing.vercel.app |
+| Website | https://rentfit-app.vercel.app |
 | Tenant | https://rentfit-tenant.vercel.app |
 | Landlord | https://rentfit-landlord.vercel.app |
 | API | https://rentfit-api.vercel.app (`/health`) |
