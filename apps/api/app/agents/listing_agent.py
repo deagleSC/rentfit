@@ -27,7 +27,7 @@ from app.domain.listing_patches import AddAmenity, Change, PatchError, RemoveAme
 from app.llm import tracing
 from app.llm.prompts.listing import ListingUpdate, ListingUpdateInput
 from app.llm.wrapper import deadline_in
-from app.pipeline.normalise import deposit_from_months
+from app.pipeline.normalise import deposit_from_months, heuristic_extract
 from app.pipeline.redact import strip_contacts
 from app.services import listings as repo
 from app.services import localities
@@ -95,9 +95,25 @@ def current_view(listing: Listing) -> dict[str, Any]:
     return d
 
 
+# Fields the pattern extractor reads only from explicit cues ("rent 28k", "6 months deposit", "family").
+BACKFILL = ("bhk", "rent", "deposit", "deposit_months", "maintenance", "furnishing", "sqft", "tenant_pref")
+
+
+def backfill(upd: ListingUpdate, message: str) -> ListingUpdate:
+    """Fill fields the model left empty from the precise pattern extractor. The small model sometimes
+    drops a value it plainly saw (rent, "sirf family"); the patterns never guess, so they only add."""
+    found = heuristic_extract(message)
+    extra = {f: found[f] for f in BACKFILL if f in found and getattr(upd, f) is None}
+    if "deposit" in extra and upd.deposit_months is not None or "deposit_months" in extra and upd.deposit is not None:
+        extra.pop("deposit", None)
+        extra.pop("deposit_months", None)
+    return upd.model_copy(update=extra) if extra else upd
+
+
 async def to_patches(tx: Tx, listing: Listing, upd: ListingUpdate, today: date,
                      message: str = "") -> tuple[list[Any], list[str]]:
     """Model output → patches. Returns (patches, notes for the reply)."""
+    upd = backfill(upd, message)
     patches: list[Any] = []
     notes: list[str] = []
     simple = ("bhk", "rent", "maintenance", "furnishing", "sqft", "floor", "total_floors", "tenant_pref", "pets",

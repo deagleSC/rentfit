@@ -13,7 +13,7 @@ from datetime import date
 from typing import Any, Literal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.domain.listing import Amenity, Furnishing
 
@@ -91,6 +91,13 @@ class SearchUpdate(BaseModel):
                                       description="For ask_about_result: 1 for 'the first one', 2 for 'the 2nd'")
     question: str | None = Field(default=None, description="For ask_about_result: what they want to know")
     semantic_query: str = Field(default="", description="The descriptive part of the request, for text search")
+
+    @field_validator("city", mode="before")
+    @classmethod
+    def _city(cls, v: object) -> object:  # "Mumbai" / "Bengaluru" → the slug, instead of a retry
+        from app.llm.prompts.listing import CITY_ALIASES
+
+        return CITY_ALIASES.get(v.strip().lower(), v) if isinstance(v, str) else v
 
 
 # ------------------------------------------------------------------ slang (code, not the model)
