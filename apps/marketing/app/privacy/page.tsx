@@ -27,7 +27,7 @@ export default function Privacy() {
       <h2>What we don't do</h2>
       <p>We don't sell your data, show ads, or share your contact details with landlords or tenants.</p>
       <h2>Deleting your data</h2>
-      <p>To delete your account and everything linked to it, contact us through the <a href="https://github.com/deagleSC/rentfit">RentFit repository on GitHub</a> (don't post personal details in a public issue) and we'll remove it.</p>
+      <p>To delete your account and everything linked to it, email <a href="mailto:supratik.deagle@gmail.com">supratik.deagle@gmail.com</a> from the address you signed up with, and we'll remove it.</p>
     </Prose>
   );
 }
