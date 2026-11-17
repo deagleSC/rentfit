@@ -62,7 +62,7 @@ export function Rows({ items }: { items: { term: ReactNode; detail: ReactNode }[
   return (
     <dl className="divide-y border-y">
       {items.map((r, i) => (
-        <div key={i} className="grid gap-1 py-5 sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] sm:gap-8">
+        <div key={i} className="grid gap-1 py-5 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] sm:gap-10">
           <dt className="font-medium">{r.term}</dt>
           <dd className="text-muted-foreground">{r.detail}</dd>
         </div>
@@ -77,8 +77,8 @@ export function Container({ children, className }: { children: ReactNode; classN
 
 export function Prose({ title, updated, children }: { title: string; updated: string; children: ReactNode }) {
   return (
-    <article className="mx-auto max-w-2xl px-4 py-14 sm:px-6">
-      <h1 className="display text-5xl">{title}</h1>
+    <article className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
+      <h1 className="display text-4xl sm:text-5xl">{title}</h1>
       <p className="mt-3 text-sm text-muted-foreground">Last updated {updated}</p>
       <div className="mt-10 space-y-4 text-[15px] leading-relaxed [&_a]:text-primary [&_a]:underline [&_h2]:mt-10 [&_h2]:font-medium [&_li]:ml-5 [&_li]:list-disc">
         {children}
